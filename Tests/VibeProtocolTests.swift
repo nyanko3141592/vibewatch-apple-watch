@@ -46,4 +46,24 @@ final class VibeProtocolTests: XCTestCase {
         XCTAssertEqual(decoded.pairingCode, "123456")
         XCTAssertEqual(decoded.event, event)
     }
+
+    func testCodexCommandMapping() {
+        XCTAssertEqual(
+            VibeEvent.agent(index: 3, phase: .pressed).codexCommand,
+            .selectAgent(3)
+        )
+        XCTAssertNil(VibeEvent.agent(index: 3, phase: .released).codexCommand)
+        XCTAssertEqual(
+            VibeEvent.control(.ok, phase: .pressed).codexCommand,
+            .approve
+        )
+        XCTAssertEqual(
+            VibeEvent.control(.ng, phase: .pressed).codexCommand,
+            .reject
+        )
+        XCTAssertEqual(
+            VibeEvent.control(.microphonePrimary, phase: .released).codexCommand,
+            .microphone(active: false)
+        )
+    }
 }

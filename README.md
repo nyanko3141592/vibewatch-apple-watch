@@ -1,85 +1,96 @@
-# Vibe Watch for Apple Watch
+# Vibe Watch for iPhone and Apple Watch
 
-Apple Watch port of [GOROman/vibewatch](https://github.com/GOROman/vibewatch), including a paired-iPhone relay and a macOS bridge for the ChatGPT desktop app's Codex Micro integration.
+An iPhone-first controller for the ChatGPT/Codex desktop app, with an optional Apple Watch companion. The control design and protocol are based on [GOROman/vibewatch](https://github.com/GOROman/vibewatch).
 
 The original Vibe Watch design and firmware are Copyright (c) 2026 GOROman and used under the MIT License. This port preserves that attribution in [LICENSE](LICENSE).
 
-## Implemented
-
-- Original-style Agent and Action control surfaces on watchOS
-- Press/release events for `AG00...AG05`
-- Firmware-compatible action events:
-  - `ACT06` FAST
-  - `ACT07` OK / approve
-  - `ACT08` NG / reject
-  - `ACT09` PLAN
-  - `ACT10` + `ACT11` push to talk
-  - `ACT12` AI / Codex
-- Byte-compatible 63-byte `v.oai.hid` vendor reports
-- Apple Watch → iPhone using WatchConnectivity
-- iPhone → Mac automatic discovery using Bonjour and a paired TCP connection
-- Six-digit local pairing code
-- macOS virtual HID with Codex Micro identity (`VID 0x303A`, `PID 0x8360`, usage page `0xFF00`, report ID `6`)
-- Codex control-plane RPC replies for `device.status`, `sys.version`, lighting, and six-agent state
-- Mac → iPhone → Watch agent-lighting synchronization
-
-## Architecture
+## Practical default setup
 
 ```text
-Apple Watch UI
-    │ WatchConnectivity
+iPhone control surface
+    │ local network (Bonjour + paired TCP)
     ▼
-iPhone relay
-    │ Bonjour + paired TCP
-    ▼
-Vibe Watch Bridge for macOS
-    │ virtual HID / v.oai.hid
+Vibe Watch Bridge on Mac
+    │ standard macOS Accessibility permission
     ▼
 ChatGPT desktop app / Codex
+
+Apple Watch ──WatchConnectivity──▶ iPhone control surface
 ```
 
-The iPhone relay is intentional. watchOS apps cannot advertise Core Bluetooth peripheral services and ordinary watchOS apps cannot maintain the low-level Bonjour/TCP connection needed here. WatchConnectivity is the supported route to the paired iPhone.
+The default route does not emulate Bluetooth or USB hardware and does not require a restricted Apple entitlement. The Mac bridge uses the normal macOS Accessibility permission to operate the visible Codex interface.
 
-## Important macOS signing requirement
+## What the iPhone can control
 
-Exact Codex Micro emulation uses `HIDVirtualDevice`, which requires Apple's restricted `com.apple.developer.hid.virtual.device` entitlement. The entitlement file and implementation are included, but the Mac target must be signed with a provisioning profile authorized for that entitlement. Without it, the bridge still builds, but macOS refuses to create the virtual HID and the Watch cannot control Codex through the genuine Codex Micro path.
+- Six visible Codex tasks/agents
+- FAST mode
+- Approve
+- Reject
+- PLAN mode
+- Submit the current prompt
+- Start/stop microphone control
 
-This environment could compile all three targets but did not have an authorized provisioning profile, so the final physical Watch → signed virtual HID → Codex interaction remains to be verified after entitlement approval/signing.
+The iPhone sends the same semantic key events as the original firmware:
 
-References:
+| Action | Event |
+| --- | --- |
+| Agents | `AG00...AG05` |
+| FAST | `ACT06` |
+| Approve | `ACT07` |
+| Reject | `ACT08` |
+| PLAN | `ACT09` |
+| Microphone | `ACT10` + `ACT11` |
+| Submit / Codex | `ACT12` |
 
-- [Apple HID virtual device entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.hid.virtual.device)
-- [Apple HIDVirtualDevice](https://developer.apple.com/documentation/corehid/hidvirtualdevice)
-- [Apple WatchConnectivity](https://developer.apple.com/documentation/watchconnectivity)
-- [OpenAI Codex Micro](https://learn.chatgpt.com/docs/features/codex-micro)
+The Apple Watch companion presents the same Agent and Action controls and forwards them through the paired iPhone.
 
-## Generate the project
+## Run it
+
+Requirements:
+
+- macOS 15 or later
+- iOS 18 or later
+- watchOS 11 or later for the optional Watch app
+- XcodeGen
+
+Generate and open the project:
 
 ```sh
-cd VibeWatchAppleWatch
 xcodegen generate
 open VibeWatchAppleWatch.xcodeproj
 ```
 
-## Run on hardware
+Then:
 
-1. In Xcode, select your development team for `VibeWatchRelay`, `VibeWatchWatchApp`, and `VibeWatchBridge`.
-2. Ensure the Mac App ID/profile contains `com.apple.developer.hid.virtual.device`.
-3. Run `VibeWatchBridge` on the Mac and leave ChatGPT desktop running.
-4. Run `VibeWatchRelay` on the iPhone paired with the Apple Watch.
-5. Enter the six-digit code shown on the Mac into the iPhone relay.
-6. Run `VibeWatchWatchApp` on the paired Apple Watch.
-7. Confirm the Mac bridge shows `Codex Micro HID: ready`, then press a Watch control.
+1. Select your development team for `VibeWatchBridge`, `VibeWatchRelay`, and optionally `VibeWatchWatchApp`.
+2. Run `VibeWatchBridge` on the Mac.
+3. Press **Grant Accessibility Access** and enable Vibe Watch Bridge under **System Settings → Privacy & Security → Accessibility**.
+4. Open the ChatGPT/Codex desktop app and press **Refresh** in the bridge. Its status should become **Ready**.
+5. Run `VibeWatchRelay` on the iPhone connected to the same local network.
+6. Enter the six-digit pairing code shown by the Mac bridge.
+7. Use the iPhone Controls tab. The Apple Watch app can be installed afterward if desired.
 
-WatchConnectivity behavior and microphone ergonomics must be tested on physical paired devices; Simulator is only suitable for UI and protocol validation.
+Keep target Codex tasks visible in the sidebar when using Agent 1–6. Accessibility labels can change between ChatGPT desktop versions; the Mac bridge reports a clear error when it cannot find a requested control.
 
-## Verified here
+## Experimental Codex Micro compatibility
+
+The Mac bridge also contains an experimental virtual-HID backend matching Codex Micro's `VID 0x303A`, `PID 0x8360`, usage page `0xFF00`, report ID `6`, and `v.oai.hid` RPC framing.
+
+This is not the default. It requires Apple's restricted [`com.apple.developer.hid.virtual.device`](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.hid.virtual.device) entitlement and an authorized provisioning profile. The example entitlement is kept in `MacApp/VibeWatchBridge.entitlements` but is deliberately not attached to the target.
+
+## Verification
 
 ```text
 watchOS Simulator build: passed
 iOS Simulator build:     passed
-macOS build:              passed (unsigned)
-protocol tests:           4 passed
+macOS build:              passed
+protocol tests:           5 passed
 ```
 
-The tests cover the original 63-byte frame, firmware action-key mapping, Watch message round trips, and iPhone/Mac bridge envelopes.
+Physical-device verification is still required for WatchConnectivity, local-network permission prompts, and the exact Accessibility labels exposed by the installed ChatGPT desktop version.
+
+References:
+
+- [Apple Accessibility API](https://developer.apple.com/documentation/applicationservices/axuielement)
+- [Apple WatchConnectivity](https://developer.apple.com/documentation/watchconnectivity)
+- [OpenAI Codex Micro](https://learn.chatgpt.com/docs/features/codex-micro)

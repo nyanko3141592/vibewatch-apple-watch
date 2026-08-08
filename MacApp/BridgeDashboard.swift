@@ -15,14 +15,35 @@ struct BridgeDashboard: View {
                             .textSelection(.enabled)
                     }
                     LabeledContent("Network bridge", value: controller.serverState)
-                    LabeledContent("Codex Micro HID", value: controller.codex.state.rawValue)
                 }
 
-                if let detail = controller.codex.detail {
-                    Section("Codex connection") {
-                        Text(detail)
+                Section("Codex control") {
+                    Picker("Mode", selection: $controller.controlMode) {
+                        ForEach(BridgeController.ControlMode.allCases) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
+                    }
+
+                    if controller.controlMode == .accessibility {
+                        LabeledContent("Status", value: controller.accessibility.state.rawValue)
+                        Text(controller.accessibility.detail)
                             .font(.callout)
-                            .foregroundStyle(controller.codex.state == .ready ? Color.secondary : Color.orange)
+                            .foregroundStyle(controller.accessibility.state == .ready ? Color.secondary : Color.orange)
+                        HStack {
+                            Button("Grant Accessibility Access") {
+                                controller.accessibility.requestAccess()
+                            }
+                            Button("Refresh") {
+                                controller.accessibility.refresh()
+                            }
+                        }
+                    } else {
+                        LabeledContent("Codex Micro HID", value: controller.codex.state.rawValue)
+                        if let detail = controller.codex.detail {
+                            Text(detail)
+                                .font(.callout)
+                                .foregroundStyle(controller.codex.state == .ready ? Color.secondary : Color.orange)
+                        }
                     }
                 }
 
@@ -32,12 +53,12 @@ struct BridgeDashboard: View {
                     }
                 }
 
-                Section("Recent Watch events") {
+                Section("Recent control events") {
                     if controller.events.isEmpty {
                         ContentUnavailableView(
-                            "Waiting for Apple Watch",
-                            systemImage: "applewatch.radiowaves.left.and.right",
-                            description: Text("Open the Watch app and press a control.")
+                            "Waiting for iPhone or Apple Watch",
+                            systemImage: "iphone.and.arrow.forward.inward",
+                            description: Text("Connect the iPhone app and press a control.")
                         )
                     } else {
                         ForEach(controller.events) { event in

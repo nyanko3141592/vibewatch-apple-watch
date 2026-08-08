@@ -4,12 +4,25 @@ import Observation
 @MainActor
 @Observable
 final class BridgeController {
+    enum ControlMode: String, CaseIterable, Identifiable {
+        case accessibility = "Accessibility (Recommended)"
+        case virtualHID = "Virtual HID (Experimental)"
+
+        var id: String { rawValue }
+    }
+
     private(set) var events: [VibeEvent] = []
     private(set) var serverState = "Stopped"
     private(set) var lastError: String?
 
     let pairingCode: String
+    let accessibility = CodexAccessibilityController()
     let codex = CodexMicroTransport()
+    var controlMode: ControlMode = .accessibility {
+        didSet {
+            if controlMode == .virtualHID { startVirtualHIDIfNeeded() }
+        }
+    }
     private var server: BridgeServer?
 
     init() {
@@ -37,11 +50,7 @@ final class BridgeController {
 
         do {
             try server.start()
-            codex.start { [weak self] agents in
-                Task { @MainActor in
-                    self?.server?.broadcast(.agentStatus(agents))
-                }
-            }
+            accessibility.refresh()
         } catch {
             lastError = error.localizedDescription
             serverState = "Failed"
@@ -54,9 +63,23 @@ final class BridgeController {
 
         Task {
             do {
-                try await codex.send(event)
+                switch controlMode {
+                case .accessibility:
+                    try accessibility.send(event)
+                case .virtualHID:
+                    try await codex.send(event)
+                }
+                lastError = nil
             } catch {
                 lastError = error.localizedDescription
+            }
+        }
+    }
+
+    private func startVirtualHIDIfNeeded() {
+        codex.start { [weak self] agents in
+            Task { @MainActor in
+                self?.server?.broadcast(.agentStatus(agents))
             }
         }
     }

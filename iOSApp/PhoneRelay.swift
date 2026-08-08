@@ -45,6 +45,10 @@ final class PhoneRelay: NSObject {
         sendAgentState()
     }
 
+    func sendFromPhone(_ event: VibeEvent) {
+        receive(event)
+    }
+
     private func sendAgentState() {
         guard let session,
               let data = try? JSONEncoder().encode(agents)

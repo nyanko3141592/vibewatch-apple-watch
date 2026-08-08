@@ -83,8 +83,6 @@ targets:
       properties:
         CFBundleDisplayName: Vibe Watch Bridge
         LSApplicationCategoryType: public.app-category.developer-tools
-    entitlements:
-      path: MacApp/VibeWatchBridge.entitlements
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nyanko3141592.VibeWatch.Bridge

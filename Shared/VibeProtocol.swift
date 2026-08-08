@@ -126,6 +126,46 @@ struct VibeEvent: Codable, Equatable, Identifiable, Sendable {
     }
 }
 
+enum CodexCommand: Equatable, Sendable {
+    case selectAgent(Int)
+    case toggleFast
+    case approve
+    case reject
+    case togglePlan
+    case submit
+    case microphone(active: Bool)
+}
+
+extension VibeEvent {
+    var codexCommand: CodexCommand? {
+        if key.hasPrefix("AG"),
+           phase == .pressed,
+           let index = Int(key.dropFirst(2)),
+           (0..<6).contains(index) {
+            return .selectAgent(index)
+        }
+
+        switch (key, phase) {
+        case (VibeControl.fast.rawValue, .pressed):
+            return .toggleFast
+        case (VibeControl.ok.rawValue, .pressed):
+            return .approve
+        case (VibeControl.ng.rawValue, .pressed):
+            return .reject
+        case (VibeControl.plan.rawValue, .pressed):
+            return .togglePlan
+        case (VibeControl.assistant.rawValue, .pressed):
+            return .submit
+        case (VibeControl.microphonePrimary.rawValue, .pressed):
+            return .microphone(active: true)
+        case (VibeControl.microphonePrimary.rawValue, .released):
+            return .microphone(active: false)
+        default:
+            return nil
+        }
+    }
+}
+
 struct VibeAgentState: Codable, Equatable, Identifiable, Sendable {
     let id: Int
     var colorHex: UInt32
