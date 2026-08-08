@@ -112,31 +112,45 @@ final class CodexAccessibilityController {
     }
 
     private func selectAgent(_ index: Int, in root: AXUIElement) throws {
-        let ignored = ["settings", "search", "new task", "設定", "検索", "新しいタスク"]
-        let rows = flatten(root).filter { element in
-            let role = stringAttribute(kAXRoleAttribute, of: element)
-            guard role == kAXRowRole as String || role == kAXGroupRole as String else { return false }
-            let label = searchableText(of: element).lowercased()
-            return label.count >= 2 && !ignored.contains(where: label.contains)
+        let ignored = ["settings", "search", "new chat", "設定", "検索", "新しいチャット"]
+        let taskButtons = flatten(root).filter { element in
+            guard stringAttribute(kAXRoleAttribute, of: element) == kAXButtonRole as String,
+                  let title = stringAttribute(kAXTitleAttribute, of: element)?.lowercased(),
+                  title.count >= 2,
+                  !ignored.contains(where: title.contains)
+            else { return false }
+            return containsChatActions(element)
         }
 
-        guard rows.indices.contains(index), performPress(rows[index]) else {
+        guard taskButtons.indices.contains(index), performPress(taskButtons[index]) else {
             state = .failed
             detail = "Could not select Codex task \(index + 1). Keep the target tasks visible in the sidebar."
             throw AccessibilityError.controlNotFound("Agent \(index + 1)")
         }
     }
 
-    private func flatten(_ root: AXUIElement) -> [AXUIElement] {
+    private func containsChatActions(_ element: AXUIElement) -> Bool {
+        let actionTerms = ["pin chat", "archive chat", "チャットをピン留め", "チャットをアーカイブ"]
+        return flatten(element, maximumDepth: 6, maximumCount: 80).contains { descendant in
+            let label = searchableText(of: descendant).lowercased()
+            return actionTerms.contains(where: label.contains)
+        }
+    }
+
+    private func flatten(
+        _ root: AXUIElement,
+        maximumDepth: Int = 36,
+        maximumCount: Int = 12_000
+    ) -> [AXUIElement] {
         var result: [AXUIElement] = []
         var pending: [(AXUIElement, Int)] = [(root, 0)]
         var visited = Set<CFHashCode>()
 
-        while let (element, depth) = pending.popLast(), result.count < 5_000 {
+        while let (element, depth) = pending.popLast(), result.count < maximumCount {
             let hash = CFHash(element)
             guard visited.insert(hash).inserted else { continue }
             result.append(element)
-            guard depth < 14 else { continue }
+            guard depth < maximumDepth else { continue }
             let children = elementsAttribute(kAXChildrenAttribute, of: element)
             pending.append(contentsOf: children.reversed().map { ($0, depth + 1) })
         }

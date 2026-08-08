@@ -3,7 +3,7 @@ import Foundation
 
 final class BridgeServer: @unchecked Sendable {
     var onState: (@Sendable (String) -> Void)?
-    var onEvent: (@Sendable (VibeEvent) -> Void)?
+    var onEvent: (@Sendable (VibeEvent, @escaping @Sendable (String?) -> Void) -> Void)?
 
     private let pairingCode: String
     private let queue = DispatchQueue(label: "com.nyanko3141592.VibeWatch.bridge-server")
@@ -90,7 +90,7 @@ final class BridgeServer: @unchecked Sendable {
                 send(.error("Pairing code does not match"), to: connection)
                 continue
             }
-            onEvent?(request.event)
+            onEvent?(request.event) { _ in }
             send(.accepted(request.event.id), to: connection)
         }
         return false
@@ -178,8 +178,20 @@ final class BridgeServer: @unchecked Sendable {
                 sendJSON(BridgeResponse.error("Pairing code does not match"), status: 403, to: connection)
                 return
             }
-            onEvent?(request.event)
-            sendJSON(BridgeResponse.accepted(request.event.id), status: 200, to: connection)
+            guard let onEvent else {
+                sendJSON(BridgeResponse.error("Bridge is not ready"), status: 503, to: connection)
+                return
+            }
+            onEvent(request.event) { [weak self, weak connection] errorMessage in
+                guard let self, let connection else { return }
+                self.queue.async {
+                    if let errorMessage {
+                        self.sendJSON(BridgeResponse.error(errorMessage), status: 422, to: connection)
+                    } else {
+                        self.sendJSON(BridgeResponse.accepted(request.event.id), status: 200, to: connection)
+                    }
+                }
+            }
             return
         }
 
@@ -210,6 +222,8 @@ final class BridgeServer: @unchecked Sendable {
         case 400: reason = "Bad Request"
         case 403: reason = "Forbidden"
         case 404: reason = "Not Found"
+        case 422: reason = "Unprocessable Content"
+        case 503: reason = "Service Unavailable"
         default: reason = "Internal Server Error"
         }
         let header = "HTTP/1.1 \(status) \(reason)\r\nContent-Type: \(type)\r\nContent-Length: \(body.count)\r\nCache-Control: no-store\r\nConnection: close\r\nX-Content-Type-Options: nosniff\r\n\r\n"

@@ -26,9 +26,14 @@ final class BridgeController {
     private var server: BridgeServer?
 
     var browserURL: URL? {
+        let host = LocalNetworkAddress.ipv4 ?? Self.localHostName
+        return URL(string: "http://\(host):\(BridgeServer.port.rawValue)/?code=\(pairingCode)")
+    }
+
+    private static var localHostName: String {
         var host = ProcessInfo.processInfo.hostName
         if !host.hasSuffix(".local") { host += ".local" }
-        return URL(string: "http://\(host):\(BridgeServer.port.rawValue)/?code=\(pairingCode)")
+        return host
     }
 
     init() {
@@ -49,8 +54,14 @@ final class BridgeController {
         server.onState = { [weak self] state in
             Task { @MainActor in self?.serverState = state }
         }
-        server.onEvent = { [weak self] event in
-            Task { @MainActor in self?.receive(event) }
+        server.onEvent = { [weak self] event, completion in
+            Task { @MainActor in
+                guard let self else {
+                    completion("Bridge closed")
+                    return
+                }
+                self.receive(event, completion: completion)
+            }
         }
         self.server = server
 
@@ -63,7 +74,10 @@ final class BridgeController {
         }
     }
 
-    private func receive(_ event: VibeEvent) {
+    private func receive(
+        _ event: VibeEvent,
+        completion: @escaping @Sendable (String?) -> Void
+    ) {
         events.insert(event, at: 0)
         if events.count > 100 { events.removeLast(events.count - 100) }
 
@@ -76,8 +90,10 @@ final class BridgeController {
                     try await codex.send(event)
                 }
                 lastError = nil
+                completion(nil)
             } catch {
                 lastError = error.localizedDescription
+                completion(error.localizedDescription)
             }
         }
     }

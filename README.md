@@ -68,6 +68,8 @@ Then:
 5. Scan the QR code shown by the bridge with the iPhone Camera app.
 6. Safari opens the controller with the pairing code already filled in.
 
+Tap Agent and Action controls normally. Only the microphone is a press-and-hold control. The controller suppresses Safari's text-selection and context-menu gestures while you operate it.
+
 Keep target Codex tasks visible in the sidebar when using Agent 1–6. Accessibility labels can change between ChatGPT desktop versions; the bridge reports an error when it cannot find a requested control.
 
 ### Optional native clients

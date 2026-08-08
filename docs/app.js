@@ -3,6 +3,9 @@ const faces = document.querySelectorAll('.demo-face');
 const toast = document.querySelector('.demo-toast');
 let toastTimer;
 
+document.querySelector('.demo-column').addEventListener('contextmenu', event => event.preventDefault());
+document.querySelector('.demo-column').addEventListener('selectstart', event => event.preventDefault());
+
 function announce(label) {
   toast.textContent = label;
   toast.classList.add('show');

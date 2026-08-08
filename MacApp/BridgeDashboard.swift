@@ -16,6 +16,9 @@ struct BridgeDashboard: View {
                                     .font(.headline)
                                 Text("No iPhone app required")
                                     .foregroundStyle(.secondary)
+                                Text("Tap controls; hold only the microphone")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
                                 Text(url.absoluteString)
                                     .font(.caption.monospaced())
                                     .textSelection(.enabled)
@@ -74,7 +77,7 @@ struct BridgeDashboard: View {
                         ContentUnavailableView(
                             "Waiting for iPhone or Apple Watch",
                             systemImage: "iphone.and.arrow.forward.inward",
-                            description: Text("Connect the iPhone app and press a control.")
+                            description: Text("Scan the QR code with your iPhone and tap a control.")
                         )
                     } else {
                         ForEach(controller.events) { event in
