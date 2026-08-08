@@ -1,0 +1,109 @@
+name: VibeWatchAppleWatch
+
+options:
+  bundleIdPrefix: com.nyanko3141592
+  deploymentTarget:
+    iOS: "18.0"
+    watchOS: "11.0"
+  xcodeVersion: "27.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: minimal
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  VibeWatchRelay:
+    type: application
+    platform: iOS
+    sources:
+      - path: iOSApp
+      - path: Shared
+    info:
+      path: iOSApp/Info.plist
+      properties:
+        CFBundleDisplayName: Vibe Watch Relay
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        NSLocalNetworkUsageDescription: Connects Apple Watch controls to Vibe Watch Bridge on your Mac.
+        NSBonjourServices:
+          - _vibewatch._tcp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nyanko3141592.VibeWatch
+        TARGETED_DEVICE_FAMILY: "1"
+    dependencies:
+      - target: VibeWatchWatchApp
+        embed: true
+
+  VibeWatchWatchApp:
+    type: application
+    platform: watchOS
+    sources:
+      - path: WatchApp
+      - path: Shared
+    info:
+      path: WatchApp/Info.plist
+      properties:
+        CFBundleDisplayName: Vibe Watch
+        WKApplication: true
+        WKCompanionAppBundleIdentifier: com.nyanko3141592.VibeWatch
+        WKRunsIndependentlyOfCompanionApp: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nyanko3141592.VibeWatch.watchkitapp
+        SKIP_INSTALL: true
+        TARGETED_DEVICE_FAMILY: "4"
+
+  VibeWatchProtocolTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+      - path: Shared
+    dependencies:
+      - target: VibeWatchRelay
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nyanko3141592.VibeWatch.ProtocolTests
+        GENERATE_INFOPLIST_FILE: true
+
+  VibeWatchBridge:
+    type: application
+    platform: macOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: MacApp
+      - path: Shared
+    info:
+      path: MacApp/Info.plist
+      properties:
+        CFBundleDisplayName: Vibe Watch Bridge
+        LSApplicationCategoryType: public.app-category.developer-tools
+    entitlements:
+      path: MacApp/VibeWatchBridge.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nyanko3141592.VibeWatch.Bridge
+
+schemes:
+  VibeWatchRelay:
+    build:
+      targets:
+        VibeWatchRelay: all
+        VibeWatchWatchApp: all
+        VibeWatchProtocolTests: [test]
+    test:
+      targets:
+        - VibeWatchProtocolTests
+  VibeWatchWatchApp:
+    build:
+      targets:
+        VibeWatchWatchApp: all
+  VibeWatchBridge:
+    build:
+      targets:
+        VibeWatchBridge: all

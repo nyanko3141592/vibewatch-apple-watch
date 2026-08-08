@@ -1,0 +1,652 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		06696CE3E3767A79B27B6B1E /* WatchLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B88FACD4C3FA8F23227E84 /* WatchLink.swift */; };
+		182AE3FE2C0AD84034756014 /* BridgeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43E27BE55B5994F87107AA9 /* BridgeController.swift */; };
+		18841C19BA3A50C69A8218EC /* RelayDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08D8442AF55F5BB7DD871E5 /* RelayDashboard.swift */; };
+		1B075B5B7B0498D13FBDD78A /* VibeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8BC7D5284754FA7A727202B /* VibeProtocol.swift */; };
+		1CFFA873ABE83D6587BAFEAF /* PressableControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A77CB524DFA8B6CD62FDEC /* PressableControl.swift */; };
+		29FD51ADE11E6A3FFB98F8A6 /* VibeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8BC7D5284754FA7A727202B /* VibeProtocol.swift */; };
+		3833A7AD19963714D2DC505F /* VibeWatchBridgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42606C2E991D088B8363301B /* VibeWatchBridgeApp.swift */; };
+		4E2F8CB06C55A0A6B9BA13FA /* BridgeServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A8A17D7A672010F7FE3032 /* BridgeServer.swift */; };
+		62630331E0CF3FCF0E7F452F /* VibeProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA69F9162FA1F5A4676D5199 /* VibeProtocolTests.swift */; };
+		73BC525045C945F541720001 /* MacHostClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA805649F5CA22F142F80054 /* MacHostClient.swift */; };
+		8AA0917FA4B73F937FF8BCC4 /* BridgeDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78ABE907541316107845A376 /* BridgeDashboard.swift */; };
+		94F5BCBB2933FFAD4E779921 /* VibeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8BC7D5284754FA7A727202B /* VibeProtocol.swift */; };
+		9C32C697D741C5BE3754050C /* VibeWatchRelayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22648D50BE16F6C54ACEE69 /* VibeWatchRelayApp.swift */; };
+		A97E579E13A8C1FBA23FBA72 /* ControlSurfaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE70E9E772EFF3A2878450E5 /* ControlSurfaceView.swift */; };
+		AB8E2E8AD29ACB0F78475B5C /* CodexMicroTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA42DC6D743798F27F89A34 /* CodexMicroTransport.swift */; };
+		AECD3EDB8E8292370266BB8B /* VibeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8BC7D5284754FA7A727202B /* VibeProtocol.swift */; };
+		C00A7CAAD5A5FE5CCB5EB2DE /* VibeWatchWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6ABFC99A1B1FBAF591BCB4 /* VibeWatchWatchApp.swift */; };
+		D623DF49C21923FC8E5071C6 /* VibeWatchWatchApp.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 634B035593DA392279CCB5AD /* VibeWatchWatchApp.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F78BF0D58DA6BCDF86655403 /* PhoneRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297E9E2F820D4A3C54288173 /* PhoneRelay.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		7AD18EA931943C7CB0A5F04A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 626EEAA7F98A17061B872A3E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 50E5D1AA81B59FD9E73541F2;
+			remoteInfo = VibeWatchRelay;
+		};
+		A61A2CDC6573C89D3D7E5537 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 626EEAA7F98A17061B872A3E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AF786009630ABFA1EE748E31;
+			remoteInfo = VibeWatchWatchApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DC971300D2BED6698699EB28 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				D623DF49C21923FC8E5071C6 /* VibeWatchWatchApp.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		17B88FACD4C3FA8F23227E84 /* WatchLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchLink.swift; sourceTree = "<group>"; };
+		297E9E2F820D4A3C54288173 /* PhoneRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneRelay.swift; sourceTree = "<group>"; };
+		42606C2E991D088B8363301B /* VibeWatchBridgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeWatchBridgeApp.swift; sourceTree = "<group>"; };
+		634B035593DA392279CCB5AD /* VibeWatchWatchApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VibeWatchWatchApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6502E6265E2B4DBE5BB7564B /* VibeWatchProtocolTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VibeWatchProtocolTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		78ABE907541316107845A376 /* BridgeDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeDashboard.swift; sourceTree = "<group>"; };
+		7F90CE98F01F210494D18645 /* VibeWatchRelay.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VibeWatchRelay.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9DA42DC6D743798F27F89A34 /* CodexMicroTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexMicroTransport.swift; sourceTree = "<group>"; };
+		A08D8442AF55F5BB7DD871E5 /* RelayDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayDashboard.swift; sourceTree = "<group>"; };
+		A8BC7D5284754FA7A727202B /* VibeProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeProtocol.swift; sourceTree = "<group>"; };
+		C327255498D221EACE8B5F38 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		C83E61490BC08F612B9E86F7 /* VibeWatchBridge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VibeWatchBridge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA69F9162FA1F5A4676D5199 /* VibeProtocolTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeProtocolTests.swift; sourceTree = "<group>"; };
+		CA9E6D768251F9DC43CF9BA7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		CD62C3CA6F7988E9B871C8B4 /* VibeWatchBridge.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VibeWatchBridge.entitlements; sourceTree = "<group>"; };
+		D43E27BE55B5994F87107AA9 /* BridgeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeController.swift; sourceTree = "<group>"; };
+		D8A77CB524DFA8B6CD62FDEC /* PressableControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PressableControl.swift; sourceTree = "<group>"; };
+		DE70E9E772EFF3A2878450E5 /* ControlSurfaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlSurfaceView.swift; sourceTree = "<group>"; };
+		E22648D50BE16F6C54ACEE69 /* VibeWatchRelayApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeWatchRelayApp.swift; sourceTree = "<group>"; };
+		E5A8A17D7A672010F7FE3032 /* BridgeServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeServer.swift; sourceTree = "<group>"; };
+		F414C285083BB2753CCE89C6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		FA805649F5CA22F142F80054 /* MacHostClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacHostClient.swift; sourceTree = "<group>"; };
+		FB6ABFC99A1B1FBAF591BCB4 /* VibeWatchWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeWatchWatchApp.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		15DB6A512F8F664D1DF1B1F0 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				CA69F9162FA1F5A4676D5199 /* VibeProtocolTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		4DB53736DFCE3B57E18C0F4B /* WatchApp */ = {
+			isa = PBXGroup;
+			children = (
+				DE70E9E772EFF3A2878450E5 /* ControlSurfaceView.swift */,
+				F414C285083BB2753CCE89C6 /* Info.plist */,
+				D8A77CB524DFA8B6CD62FDEC /* PressableControl.swift */,
+				FB6ABFC99A1B1FBAF591BCB4 /* VibeWatchWatchApp.swift */,
+				17B88FACD4C3FA8F23227E84 /* WatchLink.swift */,
+			);
+			path = WatchApp;
+			sourceTree = "<group>";
+		};
+		86FFBB574B92517F51C5234D = {
+			isa = PBXGroup;
+			children = (
+				FE0E7129792332E40C0408A6 /* iOSApp */,
+				D880BE39C7B4E5F85D906B49 /* MacApp */,
+				C1582B05F9D39740F1BC03F6 /* Shared */,
+				15DB6A512F8F664D1DF1B1F0 /* Tests */,
+				4DB53736DFCE3B57E18C0F4B /* WatchApp */,
+				AA249322216530689B4AE2D9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AA249322216530689B4AE2D9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C83E61490BC08F612B9E86F7 /* VibeWatchBridge.app */,
+				6502E6265E2B4DBE5BB7564B /* VibeWatchProtocolTests.xctest */,
+				7F90CE98F01F210494D18645 /* VibeWatchRelay.app */,
+				634B035593DA392279CCB5AD /* VibeWatchWatchApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C1582B05F9D39740F1BC03F6 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				A8BC7D5284754FA7A727202B /* VibeProtocol.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		D880BE39C7B4E5F85D906B49 /* MacApp */ = {
+			isa = PBXGroup;
+			children = (
+				D43E27BE55B5994F87107AA9 /* BridgeController.swift */,
+				78ABE907541316107845A376 /* BridgeDashboard.swift */,
+				E5A8A17D7A672010F7FE3032 /* BridgeServer.swift */,
+				9DA42DC6D743798F27F89A34 /* CodexMicroTransport.swift */,
+				CA9E6D768251F9DC43CF9BA7 /* Info.plist */,
+				CD62C3CA6F7988E9B871C8B4 /* VibeWatchBridge.entitlements */,
+				42606C2E991D088B8363301B /* VibeWatchBridgeApp.swift */,
+			);
+			path = MacApp;
+			sourceTree = "<group>";
+		};
+		FE0E7129792332E40C0408A6 /* iOSApp */ = {
+			isa = PBXGroup;
+			children = (
+				C327255498D221EACE8B5F38 /* Info.plist */,
+				FA805649F5CA22F142F80054 /* MacHostClient.swift */,
+				297E9E2F820D4A3C54288173 /* PhoneRelay.swift */,
+				A08D8442AF55F5BB7DD871E5 /* RelayDashboard.swift */,
+				E22648D50BE16F6C54ACEE69 /* VibeWatchRelayApp.swift */,
+			);
+			path = iOSApp;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		50E5D1AA81B59FD9E73541F2 /* VibeWatchRelay */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 279894F25608664D6F2B146F /* Build configuration list for PBXNativeTarget "VibeWatchRelay" */;
+			buildPhases = (
+				F686032F89B830F27C7A8221 /* Sources */,
+				DC971300D2BED6698699EB28 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E7481453689FE90FE45A4158 /* PBXTargetDependency */,
+			);
+			name = VibeWatchRelay;
+			packageProductDependencies = (
+			);
+			productName = VibeWatchRelay;
+			productReference = 7F90CE98F01F210494D18645 /* VibeWatchRelay.app */;
+			productType = "com.apple.product-type.application";
+		};
+		51F8B819094CBCD0F97EAC98 /* VibeWatchBridge */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8675BEBB5C1623652C438A9A /* Build configuration list for PBXNativeTarget "VibeWatchBridge" */;
+			buildPhases = (
+				50DE970EE7483CF66EC539ED /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VibeWatchBridge;
+			packageProductDependencies = (
+			);
+			productName = VibeWatchBridge;
+			productReference = C83E61490BC08F612B9E86F7 /* VibeWatchBridge.app */;
+			productType = "com.apple.product-type.application";
+		};
+		AF786009630ABFA1EE748E31 /* VibeWatchWatchApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4F4F4C33142F8679CF29AFE2 /* Build configuration list for PBXNativeTarget "VibeWatchWatchApp" */;
+			buildPhases = (
+				1B4F9B1F591CD65075FD3E2E /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VibeWatchWatchApp;
+			packageProductDependencies = (
+			);
+			productName = VibeWatchWatchApp;
+			productReference = 634B035593DA392279CCB5AD /* VibeWatchWatchApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D68DB1153B541BC0B8EF54AB /* VibeWatchProtocolTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BA4A63B5E49A17A0F0409A90 /* Build configuration list for PBXNativeTarget "VibeWatchProtocolTests" */;
+			buildPhases = (
+				1BB6F7ADB2C9F6A40033EDA6 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D75C79DA8C2C8C86B78F3E91 /* PBXTargetDependency */,
+			);
+			name = VibeWatchProtocolTests;
+			packageProductDependencies = (
+			);
+			productName = VibeWatchProtocolTests;
+			productReference = 6502E6265E2B4DBE5BB7564B /* VibeWatchProtocolTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		626EEAA7F98A17061B872A3E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2700;
+				TargetAttributes = {
+					50E5D1AA81B59FD9E73541F2 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					51F8B819094CBCD0F97EAC98 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					AF786009630ABFA1EE748E31 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					D68DB1153B541BC0B8EF54AB = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 44DB9DA145ABA49859663D4A /* Build configuration list for PBXProject "VibeWatchAppleWatch" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 86FFBB574B92517F51C5234D;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = AA249322216530689B4AE2D9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				51F8B819094CBCD0F97EAC98 /* VibeWatchBridge */,
+				D68DB1153B541BC0B8EF54AB /* VibeWatchProtocolTests */,
+				50E5D1AA81B59FD9E73541F2 /* VibeWatchRelay */,
+				AF786009630ABFA1EE748E31 /* VibeWatchWatchApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1B4F9B1F591CD65075FD3E2E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A97E579E13A8C1FBA23FBA72 /* ControlSurfaceView.swift in Sources */,
+				1CFFA873ABE83D6587BAFEAF /* PressableControl.swift in Sources */,
+				94F5BCBB2933FFAD4E779921 /* VibeProtocol.swift in Sources */,
+				C00A7CAAD5A5FE5CCB5EB2DE /* VibeWatchWatchApp.swift in Sources */,
+				06696CE3E3767A79B27B6B1E /* WatchLink.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BB6F7ADB2C9F6A40033EDA6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				29FD51ADE11E6A3FFB98F8A6 /* VibeProtocol.swift in Sources */,
+				62630331E0CF3FCF0E7F452F /* VibeProtocolTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		50DE970EE7483CF66EC539ED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				182AE3FE2C0AD84034756014 /* BridgeController.swift in Sources */,
+				8AA0917FA4B73F937FF8BCC4 /* BridgeDashboard.swift in Sources */,
+				4E2F8CB06C55A0A6B9BA13FA /* BridgeServer.swift in Sources */,
+				AB8E2E8AD29ACB0F78475B5C /* CodexMicroTransport.swift in Sources */,
+				1B075B5B7B0498D13FBDD78A /* VibeProtocol.swift in Sources */,
+				3833A7AD19963714D2DC505F /* VibeWatchBridgeApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F686032F89B830F27C7A8221 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				73BC525045C945F541720001 /* MacHostClient.swift in Sources */,
+				F78BF0D58DA6BCDF86655403 /* PhoneRelay.swift in Sources */,
+				18841C19BA3A50C69A8218EC /* RelayDashboard.swift in Sources */,
+				AECD3EDB8E8292370266BB8B /* VibeProtocol.swift in Sources */,
+				9C32C697D741C5BE3754050C /* VibeWatchRelayApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D75C79DA8C2C8C86B78F3E91 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 50E5D1AA81B59FD9E73541F2 /* VibeWatchRelay */;
+			targetProxy = 7AD18EA931943C7CB0A5F04A /* PBXContainerItemProxy */;
+		};
+		E7481453689FE90FE45A4158 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AF786009630ABFA1EE748E31 /* VibeWatchWatchApp */;
+			targetProxy = A61A2CDC6573C89D3D7E5537 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		02E9657F99C0DC90B5E17DEB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.nyanko3141592.VibeWatch.ProtocolTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VibeWatchRelay.app/VibeWatchRelay";
+			};
+			name = Release;
+		};
+		0DBBCF54624926A68281F4C5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 6.0;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
+			};
+			name = Debug;
+		};
+		13F924CD02FAE068E81A6DEF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MacApp/VibeWatchBridge.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = MacApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nyanko3141592.VibeWatch.Bridge;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		1B979521FEC6B79EBAE4F56D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = WatchApp/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nyanko3141592.VibeWatch.watchkitapp;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Release;
+		};
+		3C078EEEE04480B79D31BF69 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.nyanko3141592.VibeWatch.ProtocolTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VibeWatchRelay.app/VibeWatchRelay";
+			};
+			name = Debug;
+		};
+		693F67D9CFC97FFB49068D03 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MacApp/VibeWatchBridge.entitlements;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = MacApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nyanko3141592.VibeWatch.Bridge;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		69D482BF7A5996B99594296A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = iOSApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.nyanko3141592.VibeWatch;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		904E021AC37CF95B3B755C80 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = WatchApp/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nyanko3141592.VibeWatch.watchkitapp;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 4;
+			};
+			name = Debug;
+		};
+		CA421DDB97713DF4AA7FEDEF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 6.0;
+				WATCHOS_DEPLOYMENT_TARGET = 11.0;
+			};
+			name = Release;
+		};
+		DA053BEEAC72FDCB819EEE83 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = iOSApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.nyanko3141592.VibeWatch;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		279894F25608664D6F2B146F /* Build configuration list for PBXNativeTarget "VibeWatchRelay" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				69D482BF7A5996B99594296A /* Debug */,
+				DA053BEEAC72FDCB819EEE83 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		44DB9DA145ABA49859663D4A /* Build configuration list for PBXProject "VibeWatchAppleWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0DBBCF54624926A68281F4C5 /* Debug */,
+				CA421DDB97713DF4AA7FEDEF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4F4F4C33142F8679CF29AFE2 /* Build configuration list for PBXNativeTarget "VibeWatchWatchApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				904E021AC37CF95B3B755C80 /* Debug */,
+				1B979521FEC6B79EBAE4F56D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		8675BEBB5C1623652C438A9A /* Build configuration list for PBXNativeTarget "VibeWatchBridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				13F924CD02FAE068E81A6DEF /* Debug */,
+				693F67D9CFC97FFB49068D03 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BA4A63B5E49A17A0F0409A90 /* Build configuration list for PBXNativeTarget "VibeWatchProtocolTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C078EEEE04480B79D31BF69 /* Debug */,
+				02E9657F99C0DC90B5E17DEB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 626EEAA7F98A17061B872A3E /* Project object */;
+}
