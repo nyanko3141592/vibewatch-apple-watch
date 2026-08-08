@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07070a">
+  <meta name="description" content="Turn your iPhone browser into a tactile control surface for Codex on Mac. No iPhone app required.">
+  <meta property="og:title" content="Vibe Watch — Codex control from your iPhone">
+  <meta property="og:description" content="The Vibe Watch experience, recreated in Safari. Install only the Mac bridge, scan a QR code, and control Codex.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://nyanko3141592.github.io/vibewatch-apple-watch/">
+  <meta property="og:image" content="https://nyanko3141592.github.io/vibewatch-apple-watch/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Vibe Watch — Your iPhone is now a Codex controller">
+  <meta name="twitter:description" content="No iPhone app. Open Safari, scan the Mac bridge QR, control Codex.">
+  <meta name="twitter:image" content="https://nyanko3141592.github.io/vibewatch-apple-watch/og.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <title>Vibe Watch — Codex control from your iPhone</title>
+</head>
+<body>
+  <nav class="nav wrap" aria-label="Primary navigation">
+    <a class="logo" href="#top" aria-label="Vibe Watch home"><span>V</span> Vibe Watch</a>
+    <div class="nav-links">
+      <a href="#setup">Setup</a>
+      <a href="#story">Story</a>
+      <a class="github-link" href="https://github.com/nyanko3141592/vibewatch-apple-watch">GitHub <span aria-hidden="true">↗</span></a>
+    </div>
+  </nav>
+
+  <main id="top">
+    <section class="hero wrap">
+      <div class="hero-copy">
+        <div class="eyebrow"><i></i> No iPhone app required</div>
+        <h1>Your iPhone is now a <em>Codex control surface.</em></h1>
+        <p class="lede">The tactile Vibe Watch experience, recreated in Safari. Install the bridge on your Mac, scan one QR code, and control Codex without touching the desktop.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="https://github.com/nyanko3141592/vibewatch-apple-watch">Get the Mac bridge <span>↗</span></a>
+          <a class="button secondary" href="#setup">See how it works</a>
+        </div>
+        <div class="proof">
+          <span><b>7</b> Codex actions</span>
+          <span><b>0</b> iPhone installs</span>
+          <span><b>1</b> QR scan</span>
+        </div>
+      </div>
+
+      <div class="demo-column" aria-label="Interactive Vibe Watch preview">
+        <div class="phone-frame">
+          <div class="dynamic-island"></div>
+          <div class="demo-header"><span><b>V</b> Vibe Watch</span><i>DEMO</i></div>
+          <div class="demo-tabs"><button class="active" data-demo-face="agents">AGENTS</button><button data-demo-face="actions">ACTIONS</button></div>
+          <div class="demo-watch">
+            <div class="demo-face active" id="demo-agents">
+              <button class="demo-orb selected" style="--a:0deg;--c:#a56dff">1</button>
+              <button class="demo-orb" style="--a:60deg;--c:#28cdf5">2</button>
+              <button class="demo-orb" style="--a:120deg;--c:#46df8b">3</button>
+              <button class="demo-orb" style="--a:180deg;--c:#ffb33e">4</button>
+              <button class="demo-orb" style="--a:240deg;--c:#ff5b7a">5</button>
+              <button class="demo-orb" style="--a:300deg;--c:#7f899e">6</button>
+              <button class="demo-mic" aria-label="Microphone demo">●<small>HOLD</small></button>
+            </div>
+            <div class="demo-face" id="demo-actions">
+              <button class="demo-orb demo-action" style="--a:0deg;--c:#a56dff">FAST</button>
+              <button class="demo-orb demo-action" style="--a:72deg;--c:#2b8cff">OK</button>
+              <button class="demo-orb demo-action" style="--a:144deg;--c:#ff884d">NG</button>
+              <button class="demo-orb demo-action" style="--a:216deg;--c:#35d7df">PLAN</button>
+              <button class="demo-orb demo-action" style="--a:288deg;--c:#eeeeF5">SEND</button>
+              <button class="demo-mic" aria-label="Microphone demo">●<small>HOLD</small></button>
+            </div>
+          </div>
+          <p>Interactive preview · tap a control</p>
+          <div class="demo-toast" aria-live="polite">AGENT 1</div>
+        </div>
+        <div class="orbit-note note-one"><span>01</span> Same event protocol</div>
+        <div class="orbit-note note-two"><span>02</span> Runs in Safari</div>
+      </div>
+    </section>
+
+    <section class="ticker" aria-label="Supported actions">
+      <div>AGENTS 1–6 <i>✦</i> FAST <i>✦</i> APPROVE <i>✦</i> REJECT <i>✦</i> PLAN <i>✦</i> PUSH TO TALK <i>✦</i> SEND <i>✦</i></div>
+    </section>
+
+    <section class="setup wrap" id="setup">
+      <div class="section-heading">
+        <span>FROM ZERO TO VIBE</span>
+        <h2>Mac app once.<br>Safari from then on.</h2>
+        <p>No App Store, TestFlight, or iPhone provisioning. The Mac bridge serves the controller directly over your local Wi‑Fi.</p>
+      </div>
+      <ol class="steps">
+        <li><b>01</b><div class="step-icon">M</div><h3>Launch on Mac</h3><p>Open the bridge beside the Codex desktop app and grant standard Accessibility access.</p></li>
+        <li><b>02</b><div class="step-icon">⌁</div><h3>Scan the QR</h3><p>Use the iPhone camera. Safari opens the private controller served by your Mac.</p></li>
+        <li><b>03</b><div class="step-icon">V</div><h3>Stay in flow</h3><p>Select agents, approve changes, switch Plan mode, and send prompts from your phone.</p></li>
+      </ol>
+    </section>
+
+    <section class="story" id="story">
+      <div class="wrap story-grid">
+        <div class="story-card">
+          <span class="story-number">63</span>
+          <span class="story-unit">BYTES</span>
+          <p>The browser emits the same semantic press and release events used by the original Vibe Watch firmware.</p>
+          <div class="code-line"><i>02</i> {"m":"v.oai.hid","p":{"k":"ACT07","act":1}}</div>
+        </div>
+        <div class="story-copy">
+          <div class="eyebrow"><i></i> Inspired by hardware</div>
+          <h2>A great hardware idea,<br><em>opened to every iPhone.</em></h2>
+          <p>GOROman’s Vibe Watch turns frequent Codex decisions into a dedicated wrist interface. This project asks a different question: how much of that experience can we make instantly accessible with the screen already in your pocket?</p>
+          <p>It preserves the six-agent layout, action layer, event names, and tactile interaction model—then moves the client into the browser.</p>
+          <a class="text-link" href="https://github.com/GOROman/vibewatch">See the original GOROman/vibewatch <span>↗</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="architecture wrap">
+      <div class="section-heading compact">
+        <span>LOCAL BY DESIGN</span>
+        <h2>A short path to your Mac.</h2>
+      </div>
+      <div class="flow" role="img" aria-label="Safari connects over local Wi-Fi to the Mac bridge, which controls Codex using Accessibility">
+        <div class="flow-node"><small>CLIENT</small><b>iPhone Safari</b><span>No app install</span></div>
+        <div class="flow-arrow"><i></i><span>LOCAL WI‑FI</span></div>
+        <div class="flow-node accent"><small>BRIDGE</small><b>Vibe Watch for Mac</b><span>QR + pairing code</span></div>
+        <div class="flow-arrow"><i></i><span>ACCESSIBILITY</span></div>
+        <div class="flow-node"><small>TARGET</small><b>Codex desktop</b><span>Visible controls</span></div>
+      </div>
+      <p class="privacy-note"><span>●</span> Control traffic stays on your local network. The public GitHub Pages site is the project homepage; the private controller is served by your own Mac.</p>
+    </section>
+
+    <section class="final-cta wrap">
+      <div><span>READY TO TRY IT?</span><h2>Put Codex<br>in your pocket.</h2></div>
+      <div><p>Open source, MIT licensed, and built as a tribute to the interaction idea behind Vibe Watch.</p><a class="button primary light" href="https://github.com/nyanko3141592/vibewatch-apple-watch">View the project on GitHub <span>↗</span></a></div>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <a class="logo" href="#top"><span>V</span> Vibe Watch</a>
+    <p>Browser port by <a href="https://github.com/nyanko3141592">nyanko3141592</a> · Inspired by <a href="https://github.com/GOROman/vibewatch">GOROman/vibewatch</a></p>
+    <p>MIT License · 2026</p>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>

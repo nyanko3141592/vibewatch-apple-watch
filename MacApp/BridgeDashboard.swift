@@ -7,6 +7,22 @@ struct BridgeDashboard: View {
         NavigationStack {
             List {
                 Section("Pair with iPhone") {
+                    if let url = controller.browserURL {
+                        HStack(alignment: .center, spacing: 20) {
+                            QRCodeView(value: url.absoluteString)
+                                .frame(width: 132, height: 132)
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Scan with the iPhone camera")
+                                    .font(.headline)
+                                Text("No iPhone app required")
+                                    .foregroundStyle(.secondary)
+                                Text(url.absoluteString)
+                                    .font(.caption.monospaced())
+                                    .textSelection(.enabled)
+                            }
+                        }
+                        .padding(.vertical, 8)
+                    }
                     HStack {
                         Text("Pairing code")
                         Spacer()

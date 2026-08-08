@@ -1,36 +1,37 @@
 # Vibe Watch for iPhone and Apple Watch
 
-An iPhone-first controller for the ChatGPT/Codex desktop app, with an optional Apple Watch companion. The control design and protocol are based on [GOROman/vibewatch](https://github.com/GOROman/vibewatch).
+Control the ChatGPT/Codex desktop app from **Safari on your iPhone**. Install only the Mac bridge, scan its QR code, and the Vibe Watch-style controller opens on the same local Wi-Fi—no iPhone app, TestFlight, or BLE hardware required.
 
-The original Vibe Watch design and firmware are Copyright (c) 2026 GOROman and used under the MIT License. This port preserves that attribution in [LICENSE](LICENSE).
+**[Open the project site](https://nyanko3141592.github.io/vibewatch-apple-watch/)**
 
-## Practical default setup
+The control design and event protocol are based on [GOROman/vibewatch](https://github.com/GOROman/vibewatch). The original Vibe Watch design and firmware are Copyright (c) 2026 GOROman and used under the MIT License; attribution is preserved in [LICENSE](LICENSE).
+
+## Default setup: Safari + Mac bridge
 
 ```text
-iPhone control surface
-    │ local network (Bonjour + paired TCP)
+iPhone Safari
+    │ local Wi-Fi + six-digit pairing code
     ▼
 Vibe Watch Bridge on Mac
     │ standard macOS Accessibility permission
     ▼
 ChatGPT desktop app / Codex
-
-Apple Watch ──WatchConnectivity──▶ iPhone control surface
 ```
 
-The default route does not emulate Bluetooth or USB hardware and does not require a restricted Apple entitlement. The Mac bridge uses the normal macOS Accessibility permission to operate the visible Codex interface.
+The Mac bridge serves the private controller itself at `http://<your-mac>.local:8360`. The public GitHub Pages site is the project homepage, not a relay: control traffic remains on your local network.
 
-## What the iPhone can control
+The repository also contains a native iPhone client and an optional Apple Watch companion. They use the same protocol, but are no longer required for the normal setup.
+
+## Controls
 
 - Six visible Codex tasks/agents
 - FAST mode
-- Approve
-- Reject
+- Approve and reject
 - PLAN mode
 - Submit the current prompt
 - Start/stop microphone control
 
-The iPhone sends the same semantic key events as the original firmware:
+The browser sends the same semantic key events as the original firmware:
 
 | Action | Event |
 | --- | --- |
@@ -42,16 +43,14 @@ The iPhone sends the same semantic key events as the original firmware:
 | Microphone | `ACT10` + `ACT11` |
 | Submit / Codex | `ACT12` |
 
-The Apple Watch companion presents the same Agent and Action controls and forwards them through the paired iPhone.
-
 ## Run it
 
 Requirements:
 
 - macOS 15 or later
-- iOS 18 or later
-- watchOS 11 or later for the optional Watch app
-- XcodeGen
+- Xcode and XcodeGen
+- iPhone and Mac on the same local network
+- iOS 18 / watchOS 11 only when building the optional native clients
 
 Generate and open the project:
 
@@ -62,15 +61,22 @@ open VibeWatchAppleWatch.xcodeproj
 
 Then:
 
-1. Select your development team for `VibeWatchBridge`, `VibeWatchRelay`, and optionally `VibeWatchWatchApp`.
-2. Run `VibeWatchBridge` on the Mac.
+1. Select the `VibeWatchBridge` scheme and your development team.
+2. Run the bridge on the Mac.
 3. Press **Grant Accessibility Access** and enable Vibe Watch Bridge under **System Settings → Privacy & Security → Accessibility**.
 4. Open the ChatGPT/Codex desktop app and press **Refresh** in the bridge. Its status should become **Ready**.
-5. Run `VibeWatchRelay` on the iPhone connected to the same local network.
-6. Enter the six-digit pairing code shown by the Mac bridge.
-7. Use the iPhone Controls tab. The Apple Watch app can be installed afterward if desired.
+5. Scan the QR code shown by the bridge with the iPhone Camera app.
+6. Safari opens the controller with the pairing code already filled in.
 
-Keep target Codex tasks visible in the sidebar when using Agent 1–6. Accessibility labels can change between ChatGPT desktop versions; the Mac bridge reports a clear error when it cannot find a requested control.
+Keep target Codex tasks visible in the sidebar when using Agent 1–6. Accessibility labels can change between ChatGPT desktop versions; the bridge reports an error when it cannot find a requested control.
+
+### Optional native clients
+
+Build `VibeWatchRelay` for a native iPhone experience. `VibeWatchWatchApp` forwards the same Agent and Action controls through the paired iPhone using WatchConnectivity.
+
+## Why the controller is not hosted on GitHub Pages
+
+GitHub Pages is HTTPS, while the Mac bridge is a private HTTP service on the LAN. Modern browsers block an HTTPS page from sending active requests to an HTTP endpoint. Serving the controller from the Mac keeps it same-origin, avoids a cloud relay, and keeps commands local. Pages remains useful as the public, shareable introduction and install guide.
 
 ## Experimental Codex Micro compatibility
 
@@ -81,13 +87,14 @@ This is not the default. It requires Apple's restricted [`com.apple.developer.hi
 ## Verification
 
 ```text
-watchOS Simulator build: passed
-iOS Simulator build:     passed
-macOS build:              passed
-protocol tests:           5 passed
+browser controller runtime: passed (page, status, paired event)
+watchOS Simulator build:    passed
+iOS Simulator build:        passed
+macOS build:                 passed
+protocol tests:              5 passed
 ```
 
-Physical-device verification is still required for WatchConnectivity, local-network permission prompts, and the exact Accessibility labels exposed by the installed ChatGPT desktop version.
+Physical-device verification is still required for local-network permission prompts, optional WatchConnectivity, and the exact Accessibility labels exposed by the installed ChatGPT desktop version.
 
 References:
 

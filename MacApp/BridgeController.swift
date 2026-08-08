@@ -25,6 +25,12 @@ final class BridgeController {
     }
     private var server: BridgeServer?
 
+    var browserURL: URL? {
+        var host = ProcessInfo.processInfo.hostName
+        if !host.hasSuffix(".local") { host += ".local" }
+        return URL(string: "http://\(host):\(BridgeServer.port.rawValue)/?code=\(pairingCode)")
+    }
+
     init() {
         let defaults = UserDefaults.standard
         if let existing = defaults.string(forKey: "VibeWatchPairingCode") {

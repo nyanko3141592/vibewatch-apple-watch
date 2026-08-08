@@ -78,6 +78,8 @@ targets:
     sources:
       - path: MacApp
       - path: Shared
+      - path: Web/controller.html
+        buildPhase: resources
     info:
       path: MacApp/Info.plist
       properties:

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#050507">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Vibe Watch">
+  <title>Vibe Watch Controller</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+      background: #050507;
+      color: #f7f7fa;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100svh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(130, 74, 255, .14), transparent 30rem),
+        #050507;
+    }
+    button { font: inherit; }
+    .shell {
+      width: min(100%, 470px);
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: max(18px, env(safe-area-inset-top)) 18px max(28px, env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .mark {
+      width: 30px; height: 30px; border-radius: 9px;
+      display: grid; place-items: center; font-weight: 900;
+      background: linear-gradient(145deg, #945dff, #5424d8);
+      box-shadow: 0 8px 24px rgba(124, 69, 255, .35);
+    }
+    .brand strong { font-size: 15px; letter-spacing: -.01em; }
+    .brand small { display: block; color: #8e8e9a; font-size: 10px; margin-top: 1px; }
+    .status {
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 999px;
+      padding: 7px 10px;
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,.045);
+      color: #b8b8c2; font-size: 11px; font-weight: 700;
+    }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #ff9f38; box-shadow: 0 0 12px currentColor; }
+    .status.connected { color: #64e69a; }
+    .status.connected .status-dot { background: #55e08e; }
+    .mode-switch {
+      align-self: center;
+      display: grid; grid-template-columns: 1fr 1fr;
+      width: 210px; padding: 3px; margin: 4px 0 12px;
+      border: 1px solid rgba(255,255,255,.08); border-radius: 999px;
+      background: rgba(255,255,255,.045);
+    }
+    .mode-switch button {
+      border: 0; border-radius: 999px; padding: 8px 12px;
+      background: transparent; color: #777783; font-size: 11px; font-weight: 800;
+    }
+    .mode-switch button.active { color: #fff; background: #24242b; box-shadow: 0 2px 8px #0007; }
+    .watch {
+      width: min(88vw, 390px); aspect-ratio: 1;
+      position: relative; align-self: center;
+      border-radius: 50%; overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 48%, #17171d 0 19%, #0b0b0f 20% 57%, #040406 74%),
+        #08080b;
+      border: 8px solid #222229;
+      box-shadow: inset 0 0 0 2px #000, inset 0 0 45px #000, 0 22px 65px #000b;
+    }
+    .watch::before {
+      content: ""; position: absolute; inset: 7px; border-radius: 50%; pointer-events: none;
+      border: 1px solid rgba(255,255,255,.09);
+      box-shadow: inset 0 0 22px rgba(133, 85, 255, .08);
+    }
+    .face { position: absolute; inset: 0; opacity: 0; pointer-events: none; transform: scale(.97); transition: .22s ease; }
+    .face.active { opacity: 1; pointer-events: auto; transform: scale(1); }
+    .orb {
+      --angle: 0deg; --color: #8b5cff;
+      position: absolute; left: 50%; top: 50%; width: 72px; height: 72px;
+      margin: -36px; padding: 0; border-radius: 50%;
+      transform: rotate(var(--angle)) translateY(-132px) rotate(calc(-1 * var(--angle)));
+      border: 1px solid color-mix(in srgb, var(--color) 70%, white 10%);
+      color: white; background: color-mix(in srgb, var(--color) 20%, #09090c 80%);
+      box-shadow: inset 0 0 18px #0008, 0 0 18px color-mix(in srgb, var(--color) 20%, transparent);
+      display: grid; place-items: center; user-select: none; -webkit-user-select: none;
+      transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+    }
+    .orb span { font-weight: 850; font-size: 18px; text-shadow: 0 1px 4px #000; }
+    .orb small { display: block; font-size: 7px; margin-top: -15px; color: #b8b8c2; letter-spacing: .05em; }
+    .orb.pressed, .orb.selected {
+      background: var(--color); color: #07070a;
+      box-shadow: 0 0 26px color-mix(in srgb, var(--color) 60%, transparent);
+    }
+    .orb.pressed { transform: rotate(var(--angle)) translateY(-132px) rotate(calc(-1 * var(--angle))) scale(.9); }
+    .action-orb { width: 78px; height: 78px; margin: -39px; }
+    .action-orb span { font-size: 10px; letter-spacing: .04em; }
+    .action-orb b { font-size: 22px; line-height: 1; }
+    .mic {
+      position: absolute; left: 50%; top: 50%; width: 104px; height: 104px; margin: -52px;
+      border-radius: 50%; border: 2px solid #3d8bff; color: white;
+      background: radial-gradient(circle at 40% 30%, #252a36, #0d1016 70%);
+      box-shadow: inset 0 0 22px #000, 0 0 24px rgba(49, 126, 255, .2);
+      display: grid; place-items: center; user-select: none;
+      transition: .12s ease;
+    }
+    .mic .icon { font-size: 34px; line-height: 1; }
+    .mic small { font-size: 8px; font-weight: 800; color: #9fbce9; }
+    .mic.pressed { transform: scale(.92); background: #d93452; border-color: #ff738b; box-shadow: 0 0 35px #e22d5077; }
+    .hint { text-align: center; color: #777783; font-size: 11px; line-height: 1.45; margin: 16px auto 0; max-width: 310px; }
+    .toast {
+      position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom));
+      transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+      border: 1px solid rgba(255,255,255,.1); border-radius: 999px;
+      padding: 9px 14px; background: rgba(30,30,36,.92); backdrop-filter: blur(18px);
+      font-size: 12px; font-weight: 700; transition: .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    @media (max-height: 690px) {
+      .watch { width: min(76vh, 350px); }
+      .hint { margin-top: 8px; }
+      .orb { transform: rotate(var(--angle)) translateY(-118px) rotate(calc(-1 * var(--angle))); }
+      .orb.pressed { transform: rotate(var(--angle)) translateY(-118px) rotate(calc(-1 * var(--angle))) scale(.9); }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand"><div class="mark">V</div><div><strong>Vibe Watch</strong><small>CODEX CONTROL SURFACE</small></div></div>
+      <div class="status" id="status"><i class="status-dot"></i><span>Connecting</span></div>
+    </header>
+
+    <nav class="mode-switch" aria-label="Control layer">
+      <button class="active" data-face="agents">AGENTS</button>
+      <button data-face="actions">ACTIONS</button>
+    </nav>
+
+    <section class="watch" aria-label="Vibe Watch controller">
+      <div class="face active" id="agents">
+        <button class="orb selected" style="--angle:0deg;--color:#a56dff" data-key="AG00"><span>1</span><small>AGENT</small></button>
+        <button class="orb" style="--angle:60deg;--color:#2ccfff" data-key="AG01"><span>2</span><small>AGENT</small></button>
+        <button class="orb" style="--angle:120deg;--color:#46e58d" data-key="AG02"><span>3</span><small>AGENT</small></button>
+        <button class="orb" style="--angle:180deg;--color:#ffb33f" data-key="AG03"><span>4</span><small>AGENT</small></button>
+        <button class="orb" style="--angle:240deg;--color:#ff5d7d" data-key="AG04"><span>5</span><small>AGENT</small></button>
+        <button class="orb" style="--angle:300deg;--color:#7f8aa5" data-key="AG05"><span>6</span><small>AGENT</small></button>
+        <button class="mic" data-mic><div><div class="icon">●</div><small>HOLD TO TALK</small></div></button>
+      </div>
+
+      <div class="face" id="actions">
+        <button class="orb action-orb" style="--angle:0deg;--color:#a56dff" data-key="ACT06"><b>ϟ</b><span>FAST</span></button>
+        <button class="orb action-orb" style="--angle:72deg;--color:#2b8cff" data-key="ACT07"><b>✓</b><span>APPROVE</span></button>
+        <button class="orb action-orb" style="--angle:144deg;--color:#ff884d" data-key="ACT08"><b>×</b><span>REJECT</span></button>
+        <button class="orb action-orb" style="--angle:216deg;--color:#35d7df" data-key="ACT09"><b>≋</b><span>PLAN</span></button>
+        <button class="orb action-orb" style="--angle:288deg;--color:#eeeef5" data-key="ACT12"><b>↑</b><span>SEND</span></button>
+        <button class="mic" data-mic><div><div class="icon">●</div><small>HOLD TO TALK</small></div></button>
+      </div>
+    </section>
+
+    <p class="hint">Keep Codex open on your Mac. Press and hold any control to send the same down/up events as the original Vibe Watch.</p>
+  </main>
+  <div class="toast" id="toast">Sent</div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const code = params.get('code') || localStorage.getItem('vibe-watch-code') || '';
+    if (code) localStorage.setItem('vibe-watch-code', code);
+    const status = document.querySelector('#status');
+    const toast = document.querySelector('#toast');
+    let toastTimer;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1100);
+    }
+
+    function createdAtForSwift() {
+      return Date.now() / 1000 - 978307200;
+    }
+
+    async function send(key, act) {
+      if (!code) return showToast('Scan the QR code again');
+      const request = {
+        pairingCode: code,
+        event: { id: crypto.randomUUID(), key, phase: act, createdAt: createdAtForSwift() }
+      };
+      try {
+        const response = await fetch('/api/event', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(request), keepalive: true
+        });
+        if (!response.ok) throw new Error('Mac rejected the event');
+        if (act === 1) showToast(key + ' sent');
+      } catch (error) {
+        showToast('Mac connection lost');
+        setConnected(false);
+      }
+    }
+
+    function bindPress(element, keys) {
+      let activePointer = null;
+      element.addEventListener('pointerdown', event => {
+        event.preventDefault();
+        if (activePointer !== null) return;
+        activePointer = event.pointerId;
+        element.setPointerCapture(event.pointerId);
+        element.classList.add('pressed');
+        keys.forEach(key => send(key, 1));
+        if (element.dataset.key?.startsWith('AG')) {
+          document.querySelectorAll('[data-key^="AG"]').forEach(item => item.classList.remove('selected'));
+          element.classList.add('selected');
+        }
+      });
+      const release = event => {
+        if (activePointer !== event.pointerId) return;
+        activePointer = null;
+        element.classList.remove('pressed');
+        keys.forEach(key => send(key, 0));
+      };
+      element.addEventListener('pointerup', release);
+      element.addEventListener('pointercancel', release);
+      element.addEventListener('lostpointercapture', event => {
+        if (activePointer === event.pointerId) release(event);
+      });
+      element.addEventListener('contextmenu', event => event.preventDefault());
+    }
+
+    document.querySelectorAll('[data-key]').forEach(element => bindPress(element, [element.dataset.key]));
+    document.querySelectorAll('[data-mic]').forEach(element => bindPress(element, ['ACT10', 'ACT11']));
+    document.querySelectorAll('[data-face]').forEach(button => button.addEventListener('click', () => {
+      document.querySelectorAll('[data-face]').forEach(item => item.classList.toggle('active', item === button));
+      document.querySelectorAll('.face').forEach(face => face.classList.toggle('active', face.id === button.dataset.face));
+    }));
+
+    function setConnected(connected, label = connected ? 'Mac connected' : 'Offline') {
+      status.classList.toggle('connected', connected);
+      status.querySelector('span').textContent = label;
+    }
+
+    async function checkStatus() {
+      try {
+        const response = await fetch('/api/status?code=' + encodeURIComponent(code), { cache: 'no-store' });
+        const data = await response.json();
+        setConnected(response.ok && data.connected, response.ok ? data.name : 'Pairing failed');
+      } catch { setConnected(false); }
+    }
+    checkStatus();
+    setInterval(checkStatus, 3000);
+  </script>
+</body>
+</html>

@@ -2,6 +2,7 @@
 DerivedData/
 .build/
 build/
+work/
 *.xcuserstate
 xcuserdata/
 *.xccheckout

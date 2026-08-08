@@ -1,0 +1,9 @@
+{
+  "name": "Vibe Watch for Codex",
+  "short_name": "Vibe Watch",
+  "description": "Control Codex on your Mac from an iPhone browser.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#07070a",
+  "theme_color": "#07070a"
+}
