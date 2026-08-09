@@ -2,7 +2,7 @@
 
 Control the ChatGPT/Codex desktop app from **Safari on your iPhone**. Install only the Mac bridge, scan its QR code, and the Vibe Watch-style controller opens on the same local Wi-Fi—no iPhone app, TestFlight, or BLE hardware required.
 
-**[Download Vibe Watch Bridge for Mac](https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatchBridge-0.2.0.dmg)** · [Project site](https://nyanko3141592.github.io/vibewatch-apple-watch/)
+**[Download Vibe Watch Bridge for Mac](https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatchBridge-0.2.1.dmg)** · [Project site](https://nyanko3141592.github.io/vibewatch-apple-watch/)
 
 The control design and event protocol are based on [GOROman/vibewatch](https://github.com/GOROman/vibewatch). The original Vibe Watch design and firmware are Copyright (c) 2026 GOROman and used under the MIT License; attribution is preserved in [LICENSE](LICENSE).
 
@@ -51,7 +51,7 @@ Requirements:
 - iPhone and Mac on the same local network
 - iOS 18 / watchOS 11 only when building the optional native clients
 
-1. Download the notarized [VibeWatchBridge DMG](https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatchBridge-0.2.0.dmg).
+1. Download the notarized [VibeWatchBridge DMG](https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatchBridge-0.2.1.dmg).
 2. Drag **Vibe Watch Bridge** to Applications and open it.
 3. Complete the three status rows in the app: Mac bridge, Accessibility access, and Codex.
 4. Scan the QR code with the iPhone Camera app.
