@@ -21,9 +21,10 @@
     }
     * {
       box-sizing: border-box;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      user-select: none;
+      -webkit-touch-callout: none !important;
+      -webkit-user-select: none !important;
+      user-select: none !important;
+      -webkit-user-drag: none;
     }
     body {
       margin: 0;
@@ -38,6 +39,13 @@
       touch-action: none;
       -webkit-appearance: none;
     }
+    button * {
+      pointer-events: none;
+      -webkit-touch-callout: none !important;
+      -webkit-user-select: none !important;
+      user-select: none !important;
+    }
+    .watch, .face, .orb, .mic { touch-action: none; }
     .shell {
       width: min(100%, 470px);
       min-height: 100svh;
@@ -357,6 +365,11 @@
 
     function bindPress(element, keys) {
       let activePointer = null;
+      const suppressNativeGesture = event => event.preventDefault();
+      element.addEventListener('touchstart', suppressNativeGesture, { passive: false });
+      element.addEventListener('touchmove', suppressNativeGesture, { passive: false });
+      element.addEventListener('touchend', suppressNativeGesture, { passive: false });
+      element.addEventListener('touchcancel', suppressNativeGesture, { passive: false });
       element.addEventListener('pointerdown', event => {
         event.preventDefault();
         if (!controlsEnabled) {
@@ -388,9 +401,12 @@
       element.addEventListener('contextmenu', event => event.preventDefault());
     }
 
-    document.addEventListener('selectstart', event => event.preventDefault());
-    document.addEventListener('dragstart', event => event.preventDefault());
-    document.addEventListener('contextmenu', event => event.preventDefault());
+    const preventNativeSelection = event => event.preventDefault();
+    document.addEventListener('selectstart', preventNativeSelection, { capture: true });
+    document.addEventListener('dragstart', preventNativeSelection, { capture: true });
+    document.addEventListener('contextmenu', preventNativeSelection, { capture: true });
+    document.addEventListener('gesturestart', preventNativeSelection, { capture: true, passive: false });
+    document.addEventListener('selectionchange', () => window.getSelection()?.removeAllRanges());
 
     document.querySelectorAll('[data-key]').forEach(element => bindPress(element, [element.dataset.key]));
     document.querySelectorAll('[data-mic]').forEach(element => bindPress(element, ['ACT10', 'ACT11']));

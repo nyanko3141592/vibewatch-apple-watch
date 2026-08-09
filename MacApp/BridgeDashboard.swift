@@ -24,7 +24,7 @@ struct BridgeDashboard: View {
                         title: "Accessibility access",
                         detail: controller.isAccessibilityReady
                             ? "Allowed to operate visible Codex controls"
-                            : "Required once in System Settings",
+                            : controller.accessibility.detail,
                         actionTitle: controller.isAccessibilityReady ? nil : "Allow Access"
                     ) {
                         controller.requestAccessibility()

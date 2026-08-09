@@ -14,19 +14,22 @@ final class CodexAccessibilityController {
     }
 
     private(set) var state: State = .accessRequired
-    private(set) var detail = "Allow Vibe Watch Bridge in System Settings → Privacy & Security → Accessibility."
+    private(set) var detail = "Allow /Applications/VibeWatchBridge.app in System Settings → Privacy & Security → Accessibility."
+    private(set) var isTrusted = false
+    private(set) var isCodexRunning = false
 
-    var isTrusted: Bool { AXIsProcessTrusted() }
-    var isCodexRunning: Bool { Self.codexApplication != nil }
     var isReady: Bool { isTrusted && isCodexRunning }
 
     func refresh() {
-        guard AXIsProcessTrusted() else {
+        isTrusted = AXIsProcessTrusted()
+        isCodexRunning = Self.codexApplication != nil
+
+        guard isTrusted else {
             state = .accessRequired
-            detail = "No restricted Apple entitlement is needed. One standard Accessibility permission is required."
+            detail = "Enable the Applications copy. If it is already on, switch it off and on again, then reopen Vibe Watch Bridge."
             return
         }
-        guard Self.codexApplication != nil else {
+        guard isCodexRunning else {
             state = .codexNotRunning
             detail = "Open the ChatGPT/Codex desktop app, then press Refresh."
             return
@@ -58,7 +61,8 @@ final class CodexAccessibilityController {
 
     func send(_ event: VibeEvent) throws {
         guard let command = event.codexCommand else { return }
-        guard AXIsProcessTrusted() else {
+        isTrusted = AXIsProcessTrusted()
+        guard isTrusted else {
             refresh()
             throw AccessibilityError.permissionRequired
         }

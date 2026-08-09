@@ -114,7 +114,7 @@ final class BridgeController {
         if !isBridgeReady {
             message = "The Mac bridge is still starting."
         } else if !isAccessibilityReady {
-            message = "Allow Accessibility access on your Mac."
+            message = "Enable /Applications/VibeWatchBridge.app in Mac Accessibility settings. If already enabled, switch it off and on again."
         } else if !isCodexRunning {
             message = "Open Codex on your Mac."
         } else {
