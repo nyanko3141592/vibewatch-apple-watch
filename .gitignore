@@ -3,6 +3,7 @@ DerivedData/
 .build/
 build/
 work/
+Firmware/**/.pio/
 *.xcuserstate
 xcuserdata/
 *.xccheckout

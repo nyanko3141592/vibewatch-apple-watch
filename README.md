@@ -1,105 +1,116 @@
-# Vibe Watch for iPhone and Apple Watch
+# Vibe Watch native BLE controller for Codex
 
-Control the ChatGPT/Codex desktop app from **Safari on your iPhone**. Install only the Mac bridge, scan its QR code, and the Vibe Watch-style controller opens on the same local Wi-Fi—no iPhone app, TestFlight, or BLE hardware required.
+Use the Vibe Watch control surface from **Safari on iPhone**, while a BLE Micro
+Pro presents the real hardware protocol to Codex on Mac. The normal path does
+not use macOS Accessibility, UI scripting, keyboard shortcuts, deep links, or a
+restricted virtual-HID entitlement.
 
-**[Download Vibe Watch Bridge for Mac](https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatchBridge-0.2.3.dmg)** · [Project site](https://nyanko3141592.github.io/vibewatch-apple-watch/)
+**[Download Vibe Watch Bridge for Mac](https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatchBridge-0.3.0.dmg)** ·
+**[Download BLE Micro Pro firmware](https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatch-BLE-Micro-Pro.uf2)** ·
+[Project site](https://nyanko3141592.github.io/vibewatch-apple-watch/)
 
-The control design and event protocol are based on [GOROman/vibewatch](https://github.com/GOROman/vibewatch). The original Vibe Watch design and firmware are Copyright (c) 2026 GOROman and used under the MIT License; attribution is preserved in [LICENSE](LICENSE).
+The UI, device identity, HID report map, and event protocol are based on
+[GOROman/vibewatch](https://github.com/GOROman/vibewatch). Attribution is
+preserved in [LICENSE](LICENSE).
 
-## Default setup: Safari + Mac bridge
+## Architecture
 
 ```text
 iPhone Safari
     │ local Wi-Fi + six-digit pairing code
     ▼
 Vibe Watch Bridge on Mac
-    │ standard macOS Accessibility permission
+    │ private BLE GATT relay (63-byte frames)
     ▼
-ChatGPT desktop app / Codex
+BLE Micro Pro
+    │ native BLE HID — VID 303A / PID 8360 / report ID 6
+    ▼
+Codex desktop app
 ```
 
-The Mac bridge serves the private controller itself at `http://<your-mac-ip>:8360`. The public GitHub Pages site is the project homepage, not a relay: control traffic remains on your local network.
+Codex therefore receives the same `v.oai.hid` press/release messages as the
+reference device. Codex-to-device RPC is also implemented: `v.oai.thstatus`,
+`v.oai.rgbcfg`, `device.status`, and `sys.version` travel through the HID output
+report, and live agent status is relayed back to the browser.
 
-The repository also contains a native iPhone client and an optional Apple Watch companion. They use the same protocol, but are no longer required for the normal setup.
-
-## Controls
-
-- Six most recently updated Codex tasks, opened through documented `codex://threads/<id>` deep links
-- FAST mode
-- Approve and reject
-- PLAN mode
-- Submit the current prompt
-- Start/stop microphone control
-
-The browser sends the same semantic key events as the original firmware:
-
-| Action | Event |
-| --- | --- |
-| Agents | `AG00...AG05` |
-| FAST | `ACT06` |
-| Approve | `ACT07` |
-| Reject | `ACT08` |
-| PLAN | `ACT09` |
-| Microphone | `ACT10` + `ACT11` |
-| Submit / Codex | `ACT12` |
-
-## Install and run
+## Install
 
 Requirements:
 
 - macOS 15 or later
+- BLE Micro Pro (nRF52840/BL654)
 - iPhone and Mac on the same local network
-- iOS 18 / watchOS 11 only when building the optional native clients
 
-1. Download the notarized [VibeWatchBridge DMG](https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatchBridge-0.2.3.dmg).
-2. Drag **Vibe Watch Bridge** to Applications and open it.
-3. Complete the three status rows in the app: Mac bridge, Accessibility access, and Codex.
-4. Scan the QR code with the iPhone Camera app.
-5. Safari opens the controller and independently confirms all three requirements.
+1. Download `VibeWatch-BLE-Micro-Pro.uf2` from the latest release.
+2. Hold the BLE Micro Pro reset switch while connecting USB. Confirm its drive
+   contains `INFO_UF2.TXT`, then copy the UF2 to that drive.
+3. If an older `Vibe Watch #1` exists in macOS Bluetooth settings, forget it.
+   Pair the newly advertised `Vibe Watch #1`.
+4. Install and open `VibeWatchBridge-0.3.0.dmg`.
+5. Open Codex. The bridge shows the BLE board connection and the first native
+   Codex handshake separately.
+6. Scan the bridge QR code with iPhone Camera and use the Safari controller.
 
-Tap Agent and Action controls normally. Only the microphone is a press-and-hold control. The controller suppresses Safari's text-selection and context-menu gestures while you operate it.
+Tap Agent and Action controls normally. Only the microphone is press-and-hold.
+The page disables selection, callouts, drag, context menus, and native gestures
+on the entire control surface so a long press cannot select text.
 
-Keep target Codex tasks visible in the sidebar when using Agent 1–6. Accessibility labels can change between Codex desktop versions; failures are shown beside the control you used and in the Mac bridge.
+## Protocol compatibility
 
-### Build from source
+| Property | Value |
+| --- | --- |
+| BLE name | `Vibe Watch #1` |
+| Manufacturer/model | `VibeWatch` |
+| VID / PID / version | `303A` / `8360` / `0001` |
+| Vendor usage page | `FF00` |
+| Vendor report | ID `6`, input/output/feature, 63 bytes |
+| RPC frame | byte 0 channel `2`, byte 1 length, bytes 2–62 JSON |
+| Agent keys | `AG00`…`AG05` |
+| Actions | `ACT06`…`ACT12` |
 
-Install Xcode and XcodeGen, then generate and open the project:
+Example press report payload:
+
+```json
+{"m":"v.oai.hid","p":{"k":"AG00","act":1}}
+```
+
+## Build from source
+
+Mac app:
 
 ```sh
 xcodegen generate
-open VibeWatchAppleWatch.xcodeproj
+xcodebuild -project VibeWatchAppleWatch.xcodeproj -scheme VibeWatchBridge build
 ```
 
-Select the `VibeWatchBridge` scheme and run it on the Mac.
+BLE Micro Pro firmware:
 
-### Optional native clients
+```sh
+cd Firmware/BLEMicroPro
+pio run
+```
 
-Build `VibeWatchRelay` for a native iPhone experience. `VibeWatchWatchApp` forwards the same Agent and Action controls through the paired iPhone using WatchConnectivity.
+`pio run` creates `Firmware/BLEMicroPro/VibeWatch-BLE-Micro-Pro.uf2`. The image
+starts at `0x26000`, matching BLE Micro Pro's S140/UF2 application layout; it
+does not replace the bootloader.
 
-## Why the controller is not hosted on GitHub Pages
-
-GitHub Pages is HTTPS, while the Mac bridge is a private HTTP service on the LAN. Modern browsers block an HTTPS page from sending active requests to an HTTP endpoint. Serving the controller from the Mac keeps it same-origin, avoids a cloud relay, and keeps commands local. Pages remains useful as the public, shareable introduction and install guide.
-
-## Experimental Codex Micro compatibility
-
-The Mac bridge also contains an experimental virtual-HID backend matching Codex Micro's `VID 0x303A`, `PID 0x8360`, usage page `0xFF00`, report ID `6`, and `v.oai.hid` RPC framing.
-
-This is not the default. It requires Apple's restricted [`com.apple.developer.hid.virtual.device`](https://developer.apple.com/documentation/bundleresources/entitlements/com.apple.developer.hid.virtual.device) entitlement and an authorized provisioning profile. The example entitlement is kept in `MacApp/VibeWatchBridge.entitlements` but is deliberately not attached to the target.
+The repository still includes optional native iPhone and Apple Watch clients.
+They use the same event model, but Safari is the default controller.
 
 ## Verification
 
-```text
-browser controller runtime: passed (page, status, paired event)
-watchOS Simulator build:    passed
-iOS Simulator build:        passed
-macOS build:                 passed
-protocol tests:              5 passed
-```
+- BLE firmware compiles for nRF52840 and produces a UF2 beginning at `0x26000`.
+- The firmware report map is byte-identical to the reference implementation.
+- macOS bridge builds with Swift 6 and CoreBluetooth.
+- Protocol framing tests cover exact 63-byte press/release reports.
+- Browser events receive an error unless the physical BLE relay is connected;
+  the UI no longer reports a false success.
 
-Physical-device verification is still required for local-network permission prompts, optional WatchConnectivity, and the exact Accessibility labels exposed by the installed ChatGPT desktop version.
+End-to-end radio verification requires a BLE Micro Pro to be physically
+connected/flashed and paired. The build machine used for the current release
+did not have one attached, so the app deliberately reports that hardware step
+as incomplete instead of falling back to Accessibility.
 
-References:
-
-- [Apple Accessibility API](https://developer.apple.com/documentation/applicationservices/axuielement)
-- [Apple WatchConnectivity](https://developer.apple.com/documentation/watchconnectivity)
-- [OpenAI Codex Micro](https://learn.chatgpt.com/docs/features/codex-micro)
+References: [Codex Micro documentation](https://learn.chatgpt.com/docs/features/codex-micro) ·
+[BLE Micro Pro](https://github.com/sekigon-gonnoc/BLE-Micro-Pro) ·
+[Apple CoreBluetooth](https://developer.apple.com/documentation/corebluetooth)

@@ -22,5 +22,7 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.developer-tools</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Connects to BLE Micro Pro and forwards controls through its native Codex Micro HID service.</string>
 </dict>
 </plist>

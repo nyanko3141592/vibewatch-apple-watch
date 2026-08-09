@@ -257,7 +257,8 @@ struct BrowserStatus: Codable, Sendable {
     let name: String
     let message: String
     let bridgeReady: Bool
-    let accessibilityGranted: Bool
+    let hardwareConnected: Bool
+    let nativeHIDActive: Bool
     let codexRunning: Bool
     let ready: Bool
     let lastError: String?

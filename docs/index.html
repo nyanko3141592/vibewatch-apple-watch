@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#07070a">
   <meta name="description" content="Turn your iPhone browser into a tactile control surface for Codex on Mac. No iPhone app required.">
   <meta property="og:title" content="Vibe Watch — Codex control from your iPhone">
-  <meta property="og:description" content="The Vibe Watch experience, recreated in Safari. Install only the Mac bridge, scan a QR code, and control Codex.">
+  <meta property="og:description" content="The Vibe Watch experience in Safari, backed by a real BLE Micro Pro Codex HID device.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://nyanko3141592.github.io/vibewatch-apple-watch/">
   <meta property="og:image" content="https://nyanko3141592.github.io/vibewatch-apple-watch/og.png">
@@ -32,11 +32,11 @@
   <main id="top">
     <section class="hero wrap">
       <div class="hero-copy">
-        <div class="eyebrow"><i></i> No iPhone app required</div>
+        <div class="eyebrow"><i></i> Native BLE HID · no iPhone app</div>
         <h1>Your iPhone is now a <em>Codex control surface.</em></h1>
-        <p class="lede">The tactile Vibe Watch experience, recreated in Safari. Install the bridge on your Mac, scan one QR code, and control Codex without touching the desktop.</p>
+        <p class="lede">The tactile Vibe Watch experience in Safari. BLE Micro Pro sends the same native 63-byte HID protocol to Codex—no Accessibility scripting or fake clicks.</p>
         <div class="hero-actions">
-          <a class="button primary" href="https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatchBridge-0.2.3.dmg">Download for Mac <span>↓</span></a>
+          <a class="button primary" href="https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatchBridge-0.3.0.dmg">Download for Mac <span>↓</span></a>
           <a class="button secondary" href="#setup">See how it works</a>
         </div>
         <div class="proof">
@@ -90,13 +90,13 @@
       </div>
       <ol class="steps">
         <li><b>01</b><div class="step-icon">↓</div><h3>Install the bridge</h3><p>Download the notarized Mac app, open the DMG, and drag Vibe Watch Bridge to Applications.</p></li>
-        <li><b>02</b><div class="step-icon">✓</div><h3>Allow access</h3><p>The app opens the correct Accessibility settings and confirms when permission is active.</p></li>
+        <li><b>02</b><div class="step-icon">⌁</div><h3>Flash BLE Micro Pro</h3><p>Copy the release UF2 to the board's boot drive, then pair Vibe Watch #1 in macOS Bluetooth.</p></li>
         <li><b>03</b><div class="step-icon">M</div><h3>Open Codex</h3><p>The Mac checklist turns green as soon as the Codex desktop app is detected.</p></li>
         <li><b>04</b><div class="step-icon">⌁</div><h3>Scan and control</h3><p>Scan the QR. Safari checks all three Mac requirements before enabling the controls.</p></li>
       </ol>
       <div class="setup-assurance">
         <b>No guessing.</b>
-        <span>Both the Mac app and iPhone controller tell you exactly what remains: Bridge, Accessibility, or Codex.</span>
+        <span>Both the Mac app and iPhone controller tell you exactly what remains: Bridge, BLE device, or Codex.</span>
       </div>
     </section>
 
@@ -105,7 +105,7 @@
         <div class="story-card">
           <span class="story-number">63</span>
           <span class="story-unit">BYTES</span>
-          <p>The browser emits the same semantic press and release events used by the original Vibe Watch firmware.</p>
+          <p>BLE Micro Pro emits the same native press and release HID reports used by the reference Vibe Watch firmware.</p>
           <div class="code-line"><i>02</i> {"m":"v.oai.hid","p":{"k":"ACT07","act":1}}</div>
         </div>
         <div class="story-copy">
@@ -123,19 +123,19 @@
         <span>LOCAL BY DESIGN</span>
         <h2>A short path to your Mac.</h2>
       </div>
-      <div class="flow" role="img" aria-label="Safari connects over local Wi-Fi to the Mac bridge, which controls Codex using Accessibility">
+      <div class="flow" role="img" aria-label="Safari connects over local Wi-Fi to the Mac bridge, which sends frames through BLE Micro Pro to Codex">
         <div class="flow-node"><small>CLIENT</small><b>iPhone Safari</b><span>No app install</span></div>
         <div class="flow-arrow"><i></i><span>LOCAL WI‑FI</span></div>
         <div class="flow-node accent"><small>BRIDGE</small><b>Vibe Watch for Mac</b><span>QR + pairing code</span></div>
-        <div class="flow-arrow"><i></i><span>ACCESSIBILITY</span></div>
-        <div class="flow-node"><small>TARGET</small><b>Codex desktop</b><span>Visible controls</span></div>
+        <div class="flow-arrow"><i></i><span>BLE HID</span></div>
+        <div class="flow-node"><small>DEVICE + TARGET</small><b>BLE Micro Pro → Codex</b><span>VID 303A · PID 8360</span></div>
       </div>
       <p class="privacy-note"><span>●</span> Control traffic stays on your local network. The public GitHub Pages site is the project homepage; the private controller is served by your own Mac.</p>
     </section>
 
     <section class="final-cta wrap">
       <div><span>READY TO TRY IT?</span><h2>Put Codex<br>in your pocket.</h2></div>
-      <div><p>Open source, MIT licensed, and built as a tribute to the interaction idea behind Vibe Watch.</p><a class="button primary light" href="https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatchBridge-0.2.3.dmg">Download Vibe Watch Bridge <span>↓</span></a><a class="release-link" href="https://github.com/nyanko3141592/vibewatch-apple-watch">Source on GitHub ↗</a></div>
+      <div><p>Open source, MIT licensed, and built as a tribute to the interaction idea behind Vibe Watch.</p><a class="button primary light" href="https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatchBridge-0.3.0.dmg">Download Vibe Watch Bridge <span>↓</span></a><a class="release-link" href="https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatch-BLE-Micro-Pro.uf2">Download BLE firmware ↓</a></div>
     </section>
   </main>
 

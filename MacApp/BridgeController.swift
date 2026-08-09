@@ -1,36 +1,27 @@
+import AppKit
 import Foundation
 import Observation
 
 @MainActor
 @Observable
 final class BridgeController {
-    enum ControlMode: String, CaseIterable, Identifiable {
-        case accessibility = "Accessibility (Recommended)"
-        case virtualHID = "Virtual HID (Experimental)"
-
-        var id: String { rawValue }
-    }
-
     private(set) var events: [VibeEvent] = []
     private(set) var serverState = "Stopped"
     private(set) var lastError: String?
 
     let pairingCode: String
-    let accessibility = CodexAccessibilityController()
-    let codex = CodexMicroTransport()
-    var controlMode: ControlMode = .accessibility {
-        didSet {
-            if controlMode == .virtualHID { startVirtualHIDIfNeeded() }
-        }
-    }
+    let bleMicroPro = BLEMicroProTransport()
     private var server: BridgeServer?
 
     var isBridgeReady: Bool { serverState == "Ready" }
-    var isAccessibilityReady: Bool { accessibility.isTrusted }
-    var isCodexRunning: Bool { accessibility.isCodexRunning }
-    var isReady: Bool { isBridgeReady && accessibility.isReady }
+    var isHardwareReady: Bool { bleMicroPro.isConnected }
+    var isNativeHIDActive: Bool { bleMicroPro.hostHandshakeReceived }
+    var isCodexRunning: Bool {
+        !NSRunningApplication.runningApplications(withBundleIdentifier: "com.openai.codex").isEmpty
+    }
+    var isReady: Bool { isBridgeReady && isHardwareReady && isCodexRunning }
     var completedSetupSteps: Int {
-        [isBridgeReady, isAccessibilityReady, isCodexRunning].filter(\.self).count
+        [isBridgeReady, isHardwareReady, isCodexRunning].filter(\.self).count
     }
 
     var browserURL: URL? {
@@ -58,6 +49,10 @@ final class BridgeController {
     func start() {
         guard server == nil else { return }
 
+        bleMicroPro.start { [weak self] agents in
+            self?.server?.broadcast(.agentStatus(agents))
+        }
+
         let server = BridgeServer(pairingCode: pairingCode)
         server.onState = { [weak self] state in
             Task { @MainActor in self?.serverState = state }
@@ -73,19 +68,13 @@ final class BridgeController {
         }
         server.onBrowserStatus = { [weak self] completion in
             Task { @MainActor in
-                guard let self else {
-                    completion(Self.unavailableBrowserStatus)
-                    return
-                }
-                self.accessibility.refresh()
-                completion(self.browserStatus)
+                completion(self?.browserStatus ?? Self.unavailableBrowserStatus)
             }
         }
         self.server = server
 
         do {
             try server.start()
-            accessibility.refresh()
         } catch {
             lastError = error.localizedDescription
             serverState = "Failed"
@@ -93,32 +82,29 @@ final class BridgeController {
     }
 
     func refreshSetup() {
-        accessibility.refresh()
-    }
-
-    func requestAccessibility() {
-        accessibility.requestAccess()
-    }
-
-    func openAccessibilitySettings() {
-        accessibility.openAccessibilitySettings()
+        if !bleMicroPro.isConnected { bleMicroPro.rescan() }
     }
 
     func openCodex() {
-        accessibility.openCodex()
-        accessibility.refresh()
+        if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.openai.codex") {
+            NSWorkspace.shared.openApplication(at: url, configuration: .init())
+        } else {
+            lastError = "Codex is not installed in Applications."
+        }
     }
 
     private var browserStatus: BrowserStatus {
         let message: String
         if !isBridgeReady {
             message = "The Mac bridge is still starting."
-        } else if !isAccessibilityReady {
-            message = "Enable /Applications/VibeWatchBridge.app in Mac Accessibility settings. If already enabled, switch it off and on again."
+        } else if !isHardwareReady {
+            message = bleMicroPro.detail
         } else if !isCodexRunning {
             message = "Open Codex on your Mac."
+        } else if !isNativeHIDActive {
+            message = "BLE HID is connected. Codex has not sent its first native status frame yet."
         } else {
-            message = "Ready to control Codex."
+            message = "Ready — controls use the native Codex Micro BLE HID protocol."
         }
 
         return BrowserStatus(
@@ -126,7 +112,8 @@ final class BridgeController {
             name: Host.current().localizedName ?? "Mac",
             message: message,
             bridgeReady: isBridgeReady,
-            accessibilityGranted: isAccessibilityReady,
+            hardwareConnected: isHardwareReady,
+            nativeHIDActive: isNativeHIDActive,
             codexRunning: isCodexRunning,
             ready: isReady,
             lastError: lastError
@@ -138,7 +125,8 @@ final class BridgeController {
         name: "Mac",
         message: "The Mac bridge closed.",
         bridgeReady: false,
-        accessibilityGranted: false,
+        hardwareConnected: false,
+        nativeHIDActive: false,
         codexRunning: false,
         ready: false,
         lastError: "Bridge closed"
@@ -151,29 +139,13 @@ final class BridgeController {
         events.insert(event, at: 0)
         if events.count > 100 { events.removeLast(events.count - 100) }
 
-        Task {
-            do {
-                switch controlMode {
-                case .accessibility:
-                    try accessibility.send(event)
-                    if event.codexCommand != nil { lastError = nil }
-                case .virtualHID:
-                    try await codex.send(event)
-                    lastError = nil
-                }
-                completion(nil)
-            } catch {
-                lastError = error.localizedDescription
-                completion(error.localizedDescription)
-            }
-        }
-    }
-
-    private func startVirtualHIDIfNeeded() {
-        codex.start { [weak self] agents in
-            Task { @MainActor in
-                self?.server?.broadcast(.agentStatus(agents))
-            }
+        do {
+            try bleMicroPro.send(event)
+            lastError = nil
+            completion(nil)
+        } catch {
+            lastError = error.localizedDescription
+            completion(error.localizedDescription)
         }
     }
 }

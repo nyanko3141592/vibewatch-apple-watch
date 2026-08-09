@@ -204,7 +204,7 @@
       </div>
       <div class="checks" aria-label="Setup checks">
         <span class="check" data-check="bridge"><i></i>Bridge</span>
-        <span class="check" data-check="accessibility"><i></i>Access</span>
+        <span class="check" data-check="hardware"><i></i>BLE device</span>
         <span class="check" data-check="codex"><i></i>Codex</span>
       </div>
     </section>
@@ -291,13 +291,13 @@
     }
 
     function renderReadiness(data) {
-      const checks = [data.bridgeReady, data.accessibilityGranted, data.codexRunning];
+      const checks = [data.bridgeReady, data.hardwareConnected, data.codexRunning];
       const count = checks.filter(Boolean).length;
       controlsEnabled = Boolean(data.ready);
       setupMessage = data.message || 'Finish setup on your Mac.';
       readinessCount.textContent = `${count} / 3`;
       setCheck('bridge', data.bridgeReady);
-      setCheck('accessibility', data.accessibilityGranted);
+      setCheck('hardware', data.hardwareConnected);
       setCheck('codex', data.codexRunning);
       controlSurface.classList.toggle('blocked', !controlsEnabled);
       controlSurface.setAttribute('aria-disabled', String(!controlsEnabled));

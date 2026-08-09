@@ -20,22 +20,23 @@ struct BridgeDashboard: View {
 
                     SetupStepRow(
                         number: 2,
-                        isComplete: controller.isAccessibilityReady,
-                        title: "Accessibility access",
-                        detail: controller.isAccessibilityReady
-                            ? "Allowed to operate visible Codex controls"
-                            : controller.accessibility.detail,
-                        actionTitle: controller.isAccessibilityReady ? nil : "Allow Access"
+                        isComplete: controller.isHardwareReady,
+                        title: "BLE Micro Pro",
+                        detail: controller.isHardwareReady
+                            ? "Connected as Vibe Watch #1 with the native 63-byte HID protocol"
+                            : controller.bleMicroPro.detail,
+                        actionTitle: controller.isHardwareReady ? nil : "Scan Again"
                     ) {
-                        controller.requestAccessibility()
-                        controller.openAccessibilitySettings()
+                        controller.bleMicroPro.rescan()
                     }
 
                     SetupStepRow(
                         number: 3,
                         isComplete: controller.isCodexRunning,
-                        title: "Codex",
-                        detail: controller.isCodexRunning ? "Codex is open" : "Open Codex before using the controller",
+                        title: "Codex native HID",
+                        detail: controller.isNativeHIDActive
+                            ? "Codex is exchanging native device status frames"
+                            : (controller.isCodexRunning ? "Codex is open; waiting for the first device handshake" : "Open Codex before using the controller"),
                         actionTitle: controller.isCodexRunning ? nil : "Open Codex"
                     ) {
                         controller.openCodex()
@@ -74,18 +75,11 @@ struct BridgeDashboard: View {
                     }
                 }
 
-                Section("Advanced") {
-                    Picker("Control method", selection: $controller.controlMode) {
-                        ForEach(BridgeController.ControlMode.allCases) { mode in
-                            Text(mode.rawValue).tag(mode)
-                        }
-                    }
-
-                    if controller.controlMode == .virtualHID {
-                        Text(controller.codex.detail ?? controller.codex.state.rawValue)
-                            .font(.callout)
-                            .foregroundStyle(controller.codex.state == .ready ? Color.secondary : Color.orange)
-                    }
+                Section("Transport") {
+                    Label("Native Bluetooth HID", systemImage: "dot.radiowaves.left.and.right")
+                    Text("Accessibility is not used. Browser events are written to BLE Micro Pro, which sends the same v.oai.hid reports as the reference device.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
                 }
             }
             .navigationTitle("Vibe Watch Bridge")
@@ -121,7 +115,7 @@ private struct SetupSummary: View {
                         .font(.title3.weight(.semibold))
                     Text(controller.isReady
                          ? "Scan the QR code below. No iPhone app is needed."
-                         : "Complete these three steps. It usually takes less than a minute.")
+                         : "Flash and pair BLE Micro Pro, then open Codex.")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
