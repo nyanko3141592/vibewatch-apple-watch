@@ -6,92 +6,215 @@ struct BridgeDashboard: View {
     var body: some View {
         NavigationStack {
             List {
-                Section("Pair with iPhone") {
-                    if let url = controller.browserURL {
-                        HStack(alignment: .center, spacing: 20) {
-                            QRCodeView(value: url.absoluteString)
-                                .frame(width: 132, height: 132)
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Scan with the iPhone camera")
-                                    .font(.headline)
-                                Text("No iPhone app required")
-                                    .foregroundStyle(.secondary)
-                                Text("Tap controls; hold only the microphone")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                Text(url.absoluteString)
-                                    .font(.caption.monospaced())
-                                    .textSelection(.enabled)
-                            }
-                        }
-                        .padding(.vertical, 8)
-                    }
-                    HStack {
-                        Text("Pairing code")
-                        Spacer()
-                        Text(controller.pairingCode)
-                            .font(.system(.title2, design: .monospaced, weight: .bold))
-                            .textSelection(.enabled)
-                    }
-                    LabeledContent("Network bridge", value: controller.serverState)
+                Section {
+                    SetupSummary(controller: controller)
                 }
 
-                Section("Codex control") {
-                    Picker("Mode", selection: $controller.controlMode) {
-                        ForEach(BridgeController.ControlMode.allCases) { mode in
-                            Text(mode.rawValue).tag(mode)
-                        }
+                Section("First-time setup") {
+                    SetupStepRow(
+                        number: 1,
+                        isComplete: controller.isBridgeReady,
+                        title: "Mac bridge",
+                        detail: controller.isBridgeReady ? "Listening on your local network" : "Starting the local controller"
+                    )
+
+                    SetupStepRow(
+                        number: 2,
+                        isComplete: controller.isAccessibilityReady,
+                        title: "Accessibility access",
+                        detail: controller.isAccessibilityReady
+                            ? "Allowed to operate visible Codex controls"
+                            : "Required once in System Settings",
+                        actionTitle: controller.isAccessibilityReady ? nil : "Allow Access"
+                    ) {
+                        controller.requestAccessibility()
+                        controller.openAccessibilitySettings()
                     }
 
-                    if controller.controlMode == .accessibility {
-                        LabeledContent("Status", value: controller.accessibility.state.rawValue)
-                        Text(controller.accessibility.detail)
-                            .font(.callout)
-                            .foregroundStyle(controller.accessibility.state == .ready ? Color.secondary : Color.orange)
-                        HStack {
-                            Button("Grant Accessibility Access") {
-                                controller.accessibility.requestAccess()
-                            }
-                            Button("Refresh") {
-                                controller.accessibility.refresh()
-                            }
-                        }
-                    } else {
-                        LabeledContent("Codex Micro HID", value: controller.codex.state.rawValue)
-                        if let detail = controller.codex.detail {
-                            Text(detail)
-                                .font(.callout)
-                                .foregroundStyle(controller.codex.state == .ready ? Color.secondary : Color.orange)
-                        }
+                    SetupStepRow(
+                        number: 3,
+                        isComplete: controller.isCodexRunning,
+                        title: "Codex",
+                        detail: controller.isCodexRunning ? "Codex is open" : "Open Codex before using the controller",
+                        actionTitle: controller.isCodexRunning ? nil : "Open Codex"
+                    ) {
+                        controller.openCodex()
                     }
+                }
+
+                Section(controller.isReady ? "Connect your iPhone" : "Your iPhone") {
+                    QRConnectPanel(controller: controller)
                 }
 
                 if let error = controller.lastError {
-                    Section("Last error") {
-                        Text(error).foregroundStyle(.red)
+                    Section("Needs attention") {
+                        Label(error, systemImage: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
                     }
                 }
 
-                Section("Recent control events") {
+                Section("Recent controls") {
                     if controller.events.isEmpty {
                         ContentUnavailableView(
-                            "Waiting for iPhone or Apple Watch",
+                            "No controls yet",
                             systemImage: "iphone.and.arrow.forward.inward",
-                            description: Text("Scan the QR code with your iPhone and tap a control.")
+                            description: Text("Finish the three steps, scan the QR code, then tap Agent 1 on your iPhone.")
                         )
                     } else {
-                        ForEach(controller.events) { event in
+                        ForEach(controller.events.prefix(12)) { event in
                             HStack {
-                                Text(event.key).monospaced()
+                                Text(event.key)
+                                    .monospaced()
                                 Spacer()
-                                Text(event.phase == .pressed ? "DOWN" : "UP")
+                                Text(event.phase == .pressed ? "PRESSED" : "RELEASED")
+                                    .font(.caption.weight(.semibold))
                                     .foregroundStyle(event.phase == .pressed ? .green : .secondary)
                             }
                         }
                     }
                 }
+
+                Section("Advanced") {
+                    Picker("Control method", selection: $controller.controlMode) {
+                        ForEach(BridgeController.ControlMode.allCases) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
+                    }
+
+                    if controller.controlMode == .virtualHID {
+                        Text(controller.codex.detail ?? controller.codex.state.rawValue)
+                            .font(.callout)
+                            .foregroundStyle(controller.codex.state == .ready ? Color.secondary : Color.orange)
+                    }
+                }
             }
             .navigationTitle("Vibe Watch Bridge")
+            .toolbar {
+                ToolbarItem {
+                    Button("Refresh", systemImage: "arrow.clockwise") {
+                        controller.refreshSetup()
+                    }
+                }
+            }
+            .task {
+                while !Task.isCancelled {
+                    controller.refreshSetup()
+                    try? await Task.sleep(for: .seconds(2))
+                }
+            }
         }
     }
+}
+
+private struct SetupSummary: View {
+    let controller: BridgeController
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 12) {
+                Image(systemName: controller.isReady ? "checkmark.circle.fill" : "wand.and.stars")
+                    .font(.system(size: 28, weight: .semibold))
+                    .foregroundStyle(controller.isReady ? Color.green : Color.accentColor)
+                    .accessibilityHidden(true)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(controller.isReady ? "Ready for your iPhone" : "Let’s get you connected")
+                        .font(.title3.weight(.semibold))
+                    Text(controller.isReady
+                         ? "Scan the QR code below. No iPhone app is needed."
+                         : "Complete these three steps. It usually takes less than a minute.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            ProgressView(value: Double(controller.completedSetupSteps), total: 3)
+                .accessibilityLabel("Setup progress")
+                .accessibilityValue("\(controller.completedSetupSteps) of 3 steps complete")
+
+            Text("\(controller.completedSetupSteps) of 3 ready")
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 8)
+    }
+}
+
+private struct SetupStepRow: View {
+    let number: Int
+    let isComplete: Bool
+    let title: String
+    let detail: String
+    var actionTitle: String?
+    var action: () -> Void = {}
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: isComplete ? "checkmark.circle.fill" : "\(number).circle")
+                .font(.title3)
+                .foregroundStyle(isComplete ? .green : .secondary)
+                .frame(width: 24)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.body.weight(.medium))
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            if let actionTitle {
+                Button(actionTitle, action: action)
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+            } else {
+                Text("Done")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.green)
+            }
+        }
+        .padding(.vertical, 5)
+    }
+}
+
+private struct QRConnectPanel: View {
+    let controller: BridgeController
+
+    var body: some View {
+        if let url = controller.browserURL {
+            HStack(alignment: .center, spacing: 20) {
+                QRCodeView(value: url.absoluteString)
+                    .frame(width: 144, height: 144)
+                    .opacity(controller.isReady ? 1 : 0.35)
+
+                VStack(alignment: .leading, spacing: 9) {
+                    Text(controller.isReady ? "Scan with Camera" : "QR unlocks when ready")
+                        .font(.headline)
+                    Text(controller.isReady
+                         ? "Safari opens the controller automatically. Tap controls normally; hold only the microphone."
+                         : "You can scan now, but the controller will show which Mac setup step remains.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                    Text(url.absoluteString)
+                        .font(.caption.monospaced())
+                        .lineLimit(2)
+                        .textSelection(.enabled)
+                }
+            }
+            .padding(.vertical, 8)
+        } else {
+            ContentUnavailableView(
+                "No local network address",
+                systemImage: "wifi.exclamationmark",
+                description: Text("Connect this Mac to Wi-Fi, then press Refresh.")
+            )
+        }
+    }
+}
+
+#Preview {
+    BridgeDashboard(controller: BridgeController())
+        .frame(width: 580, height: 700)
 }

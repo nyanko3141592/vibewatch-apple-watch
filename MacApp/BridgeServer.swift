@@ -4,6 +4,7 @@ import Foundation
 final class BridgeServer: @unchecked Sendable {
     var onState: (@Sendable (String) -> Void)?
     var onEvent: (@Sendable (VibeEvent, @escaping @Sendable (String?) -> Void) -> Void)?
+    var onBrowserStatus: (@Sendable (@escaping @Sendable (BrowserStatus) -> Void) -> Void)?
 
     private let pairingCode: String
     private let queue = DispatchQueue(label: "com.nyanko3141592.VibeWatch.bridge-server")
@@ -160,12 +161,14 @@ final class BridgeServer: @unchecked Sendable {
                 sendJSON(BridgeResponse.error("Pairing code does not match"), status: 403, to: connection)
                 return
             }
-            let payload = BrowserStatus(
-                connected: true,
-                name: Host.current().localizedName ?? "Mac",
-                message: "Connected to Vibe Watch Bridge"
-            )
-            sendJSON(payload, status: 200, to: connection)
+            guard let onBrowserStatus else {
+                sendJSON(BridgeResponse.error("Bridge is still starting"), status: 503, to: connection)
+                return
+            }
+            onBrowserStatus { [weak self, weak connection] status in
+                guard let self, let connection else { return }
+                self.queue.async { self.sendJSON(status, status: 200, to: connection) }
+            }
             return
         }
 
@@ -249,8 +252,13 @@ final class BridgeServer: @unchecked Sendable {
     }
 }
 
-private struct BrowserStatus: Codable {
+struct BrowserStatus: Codable, Sendable {
     let connected: Bool
     let name: String
     let message: String
+    let bridgeReady: Bool
+    let accessibilityGranted: Bool
+    let codexRunning: Bool
+    let ready: Bool
+    let lastError: String?
 }

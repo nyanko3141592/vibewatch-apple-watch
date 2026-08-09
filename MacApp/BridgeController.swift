@@ -25,6 +25,14 @@ final class BridgeController {
     }
     private var server: BridgeServer?
 
+    var isBridgeReady: Bool { serverState == "Ready" }
+    var isAccessibilityReady: Bool { accessibility.isTrusted }
+    var isCodexRunning: Bool { accessibility.isCodexRunning }
+    var isReady: Bool { isBridgeReady && accessibility.isReady }
+    var completedSetupSteps: Int {
+        [isBridgeReady, isAccessibilityReady, isCodexRunning].filter(\.self).count
+    }
+
     var browserURL: URL? {
         let host = LocalNetworkAddress.ipv4 ?? Self.localHostName
         return URL(string: "http://\(host):\(BridgeServer.port.rawValue)/?code=\(pairingCode)")
@@ -63,6 +71,16 @@ final class BridgeController {
                 self.receive(event, completion: completion)
             }
         }
+        server.onBrowserStatus = { [weak self] completion in
+            Task { @MainActor in
+                guard let self else {
+                    completion(Self.unavailableBrowserStatus)
+                    return
+                }
+                self.accessibility.refresh()
+                completion(self.browserStatus)
+            }
+        }
         self.server = server
 
         do {
@@ -73,6 +91,58 @@ final class BridgeController {
             serverState = "Failed"
         }
     }
+
+    func refreshSetup() {
+        accessibility.refresh()
+    }
+
+    func requestAccessibility() {
+        accessibility.requestAccess()
+    }
+
+    func openAccessibilitySettings() {
+        accessibility.openAccessibilitySettings()
+    }
+
+    func openCodex() {
+        accessibility.openCodex()
+        accessibility.refresh()
+    }
+
+    private var browserStatus: BrowserStatus {
+        let message: String
+        if !isBridgeReady {
+            message = "The Mac bridge is still starting."
+        } else if !isAccessibilityReady {
+            message = "Allow Accessibility access on your Mac."
+        } else if !isCodexRunning {
+            message = "Open Codex on your Mac."
+        } else {
+            message = "Ready to control Codex."
+        }
+
+        return BrowserStatus(
+            connected: true,
+            name: Host.current().localizedName ?? "Mac",
+            message: message,
+            bridgeReady: isBridgeReady,
+            accessibilityGranted: isAccessibilityReady,
+            codexRunning: isCodexRunning,
+            ready: isReady,
+            lastError: lastError
+        )
+    }
+
+    private static let unavailableBrowserStatus = BrowserStatus(
+        connected: false,
+        name: "Mac",
+        message: "The Mac bridge closed.",
+        bridgeReady: false,
+        accessibilityGranted: false,
+        codexRunning: false,
+        ready: false,
+        lastError: "Bridge closed"
+    )
 
     private func receive(
         _ event: VibeEvent,
@@ -86,10 +156,11 @@ final class BridgeController {
                 switch controlMode {
                 case .accessibility:
                     try accessibility.send(event)
+                    if event.codexCommand != nil { lastError = nil }
                 case .virtualHID:
                     try await codex.send(event)
+                    lastError = nil
                 }
-                lastError = nil
                 completion(nil)
             } catch {
                 lastError = error.localizedDescription

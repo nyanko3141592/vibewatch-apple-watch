@@ -17,6 +17,8 @@ final class CodexAccessibilityController {
     private(set) var detail = "Allow Vibe Watch Bridge in System Settings → Privacy & Security → Accessibility."
 
     var isTrusted: Bool { AXIsProcessTrusted() }
+    var isCodexRunning: Bool { Self.codexApplication != nil }
+    var isReady: Bool { isTrusted && isCodexRunning }
 
     func refresh() {
         guard AXIsProcessTrusted() else {
@@ -36,6 +38,22 @@ final class CodexAccessibilityController {
     func requestAccess() {
         _ = AXIsProcessTrustedWithOptions(["AXTrustedCheckOptionPrompt": true] as CFDictionary)
         refresh()
+    }
+
+    func openAccessibilitySettings() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") else {
+            return
+        }
+        NSWorkspace.shared.open(url)
+    }
+
+    func openCodex() {
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.openai.codex") else {
+            state = .codexNotRunning
+            detail = "Codex is not installed in Applications."
+            return
+        }
+        NSWorkspace.shared.open(url)
     }
 
     func send(_ event: VibeEvent) throws {

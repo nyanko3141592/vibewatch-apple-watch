@@ -9,6 +9,6 @@ struct VibeWatchBridgeApp: App {
             BridgeDashboard(controller: controller)
                 .task { controller.start() }
         }
-        .defaultSize(width: 480, height: 420)
+        .defaultSize(width: 580, height: 700)
     }
 }

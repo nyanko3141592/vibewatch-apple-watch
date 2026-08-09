@@ -84,10 +84,17 @@ targets:
       path: MacApp/Info.plist
       properties:
         CFBundleDisplayName: Vibe Watch Bridge
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSApplicationCategoryType: public.app-category.developer-tools
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nyanko3141592.VibeWatch.Bridge
+        MARKETING_VERSION: 0.2.0
+        CURRENT_PROJECT_VERSION: 2
+        DEVELOPMENT_TEAM: CW97U5J24N
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_HARDENED_RUNTIME: YES
 
 schemes:
   VibeWatchRelay:

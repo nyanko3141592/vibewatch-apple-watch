@@ -278,7 +278,7 @@
 						ProvisioningStyle = Automatic;
 					};
 					51F8B819094CBCD0F97EAC98 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = CW97U5J24N;
 						ProvisioningStyle = Automatic;
 					};
 					AF786009630ABFA1EE748E31 = {
@@ -479,13 +479,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = CW97U5J24N;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = MacApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 0.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nyanko3141592.VibeWatch.Bridge;
 				SDKROOT = macosx;
 			};
@@ -524,13 +529,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = CW97U5J24N;
+				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = MacApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				MARKETING_VERSION = 0.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nyanko3141592.VibeWatch.Bridge;
 				SDKROOT = macosx;
 			};

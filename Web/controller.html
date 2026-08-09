@@ -68,6 +68,34 @@
     .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #ff9f38; box-shadow: 0 0 12px currentColor; }
     .status.connected { color: #64e69a; }
     .status.connected .status-dot { background: #55e08e; }
+    .readiness {
+      margin: 2px 0 10px; padding: 12px;
+      border: 1px solid rgba(255,255,255,.1); border-radius: 14px;
+      background: #101014;
+    }
+    .readiness-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .readiness-head strong { display: block; font-size: 13px; }
+    .readiness-head small { display: block; margin-top: 3px; color: #8e8e9a; font-size: 10px; line-height: 1.4; }
+    .readiness-count { color: #b692ff; font: 700 11px ui-monospace, SFMono-Regular, Menlo, monospace; white-space: nowrap; }
+    .checks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+    .check {
+      display: flex; align-items: center; gap: 6px; min-width: 0;
+      padding: 7px 8px; border-radius: 9px; background: #18181e;
+      color: #777783; font-size: 9px; font-weight: 750;
+    }
+    .check i { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: #53535e; }
+    .check.done { color: #d8d7dd; }
+    .check.done i { background: #55e08e; }
+    .coach {
+      margin-bottom: 10px; padding: 12px;
+      border: 1px solid rgba(151,99,255,.45); border-radius: 14px; background: #121019;
+    }
+    .coach strong { display: block; font-size: 12px; }
+    .coach ol { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; list-style: none; padding: 0; margin: 10px 0; }
+    .coach li { padding: 8px; border-radius: 9px; background: #1a1721; color: #aaa6b4; font-size: 9px; line-height: 1.35; }
+    .coach li b { display: block; margin-bottom: 3px; color: #b58cff; font-size: 10px; }
+    .coach button { width: 100%; border: 0; border-radius: 9px; padding: 8px; background: #eeeef3; color: #101014; font-size: 10px; font-weight: 800; }
+    [hidden] { display: none !important; }
     .mode-switch {
       align-self: center;
       display: grid; grid-template-columns: 1fr 1fr;
@@ -90,6 +118,7 @@
       border: 8px solid #222229;
       box-shadow: inset 0 0 0 2px #000, inset 0 0 45px #000, 0 22px 65px #000b;
     }
+    .watch.blocked { opacity: .48; }
     .watch::before {
       content: ""; position: absolute; inset: 7px; border-radius: 50%; pointer-events: none;
       border: 1px solid rgba(255,255,255,.09);
@@ -129,7 +158,14 @@
     .mic .icon { font-size: 34px; line-height: 1; }
     .mic small { font-size: 8px; font-weight: 800; color: #9fbce9; }
     .mic.pressed { transform: scale(.92); background: #d93452; border-color: #ff738b; box-shadow: 0 0 35px #e22d5077; }
-    .hint { text-align: center; color: #777783; font-size: 11px; line-height: 1.45; margin: 16px auto 0; max-width: 310px; }
+    .feedback {
+      min-height: 36px; margin: 12px 0 0; padding: 9px 12px;
+      border: 1px solid rgba(255,255,255,.08); border-radius: 10px;
+      background: #101014; color: #8e8e9a; text-align: center; font-size: 10px; line-height: 1.45;
+    }
+    .feedback.success { color: #75e8a4; border-color: rgba(85,224,142,.28); }
+    .feedback.error { color: #ff9f72; border-color: rgba(255,136,77,.35); }
+    .hint { text-align: center; color: #666672; font-size: 10px; line-height: 1.45; margin: 8px auto 0; max-width: 330px; }
     .toast {
       position: fixed; left: 50%; bottom: max(24px, env(safe-area-inset-bottom));
       transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
@@ -139,7 +175,7 @@
     }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
     @media (max-height: 690px) {
-      .watch { width: min(76vh, 350px); }
+      .watch { width: min(66vh, 330px); }
       .hint { margin-top: 8px; }
       .orb { transform: rotate(var(--angle)) translateY(-118px) rotate(calc(-1 * var(--angle))); }
       .orb.pressed { transform: rotate(var(--angle)) translateY(-118px) rotate(calc(-1 * var(--angle))) scale(.9); }
@@ -153,12 +189,34 @@
       <div class="status" id="status"><i class="status-dot"></i><span>Connecting</span></div>
     </header>
 
+    <section class="readiness" id="readiness" aria-live="polite">
+      <div class="readiness-head">
+        <div><strong id="readiness-title">Checking your Mac…</strong><small id="readiness-detail">Keep Vibe Watch Bridge open.</small></div>
+        <span class="readiness-count" id="readiness-count">0 / 3</span>
+      </div>
+      <div class="checks" aria-label="Setup checks">
+        <span class="check" data-check="bridge"><i></i>Bridge</span>
+        <span class="check" data-check="accessibility"><i></i>Access</span>
+        <span class="check" data-check="codex"><i></i>Codex</span>
+      </div>
+    </section>
+
+    <section class="coach" id="coach" hidden>
+      <strong>You’re connected. Three things to know:</strong>
+      <ol>
+        <li><b>1</b>Tap an agent</li>
+        <li><b>2</b>Open Actions</li>
+        <li><b>3</b>Hold mic only</li>
+      </ol>
+      <button id="coach-done">Got it — start controlling</button>
+    </section>
+
     <nav class="mode-switch" aria-label="Control layer">
       <button class="active" data-face="agents">AGENTS</button>
       <button data-face="actions">ACTIONS</button>
     </nav>
 
-    <section class="watch" aria-label="Vibe Watch controller">
+    <section class="watch blocked" id="control-surface" aria-label="Vibe Watch controller" aria-disabled="true">
       <div class="face active" id="agents">
         <button class="orb selected" style="--angle:0deg;--color:#a56dff" data-key="AG00"><span>1</span><small>AGENT</small></button>
         <button class="orb" style="--angle:60deg;--color:#2ccfff" data-key="AG01"><span>2</span><small>AGENT</small></button>
@@ -179,7 +237,8 @@
       </div>
     </section>
 
-    <p class="hint">Tap a control to send it to Codex. Press and hold only the microphone button while speaking.</p>
+    <p class="feedback" id="feedback" role="status" aria-live="polite">Checking whether Codex is ready…</p>
+    <p class="hint">Tap Agent and Action controls normally. Press and hold only the microphone button while speaking.</p>
   </main>
   <div class="toast" id="toast">Sent</div>
 
@@ -189,13 +248,63 @@
     if (code) localStorage.setItem('vibe-watch-code', code);
     const status = document.querySelector('#status');
     const toast = document.querySelector('#toast');
+    const readinessTitle = document.querySelector('#readiness-title');
+    const readinessDetail = document.querySelector('#readiness-detail');
+    const readinessCount = document.querySelector('#readiness-count');
+    const controlSurface = document.querySelector('#control-surface');
+    const feedback = document.querySelector('#feedback');
+    const coach = document.querySelector('#coach');
     let toastTimer;
+    let controlsEnabled = false;
+    let setupMessage = 'Checking whether Codex is ready…';
+
+    const successLabels = {
+      AG00: 'Agent 1 selected', AG01: 'Agent 2 selected', AG02: 'Agent 3 selected',
+      AG03: 'Agent 4 selected', AG04: 'Agent 5 selected', AG05: 'Agent 6 selected',
+      ACT06: 'FAST requested', ACT07: 'Approved', ACT08: 'Rejected',
+      ACT09: 'PLAN requested', ACT10: 'Microphone updated', ACT11: 'Microphone updated',
+      ACT12: 'Prompt sent'
+    };
 
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add('show');
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => toast.classList.remove('show'), 1100);
+    }
+
+    function showFeedback(message, kind = '') {
+      feedback.textContent = message;
+      feedback.className = 'feedback' + (kind ? ' ' + kind : '');
+    }
+
+    function setCheck(name, done) {
+      document.querySelector(`[data-check="${name}"]`).classList.toggle('done', done);
+    }
+
+    function renderReadiness(data) {
+      const checks = [data.bridgeReady, data.accessibilityGranted, data.codexRunning];
+      const count = checks.filter(Boolean).length;
+      controlsEnabled = Boolean(data.ready);
+      setupMessage = data.message || 'Finish setup on your Mac.';
+      readinessCount.textContent = `${count} / 3`;
+      setCheck('bridge', data.bridgeReady);
+      setCheck('accessibility', data.accessibilityGranted);
+      setCheck('codex', data.codexRunning);
+      controlSurface.classList.toggle('blocked', !controlsEnabled);
+      controlSurface.setAttribute('aria-disabled', String(!controlsEnabled));
+
+      if (controlsEnabled) {
+        readinessTitle.textContent = 'Ready to control Codex';
+        readinessDetail.textContent = `${data.name} · Local connection`;
+        showFeedback(data.lastError || 'Tap Agent 1 to try your first control.', data.lastError ? 'error' : 'success');
+        if (!localStorage.getItem('vibe-watch-onboarding-seen')) coach.hidden = false;
+      } else {
+        readinessTitle.textContent = count === 0 ? 'Connecting to your Mac…' : 'Finish setup on your Mac';
+        readinessDetail.textContent = setupMessage;
+        coach.hidden = true;
+        showFeedback(setupMessage, 'error');
+      }
     }
 
     function createdAtForSwift() {
@@ -220,6 +329,10 @@
 
     async function send(key, act) {
       if (!code) return showToast('Scan the QR code again');
+      if (!controlsEnabled) {
+        showFeedback(setupMessage, 'error');
+        return;
+      }
       try {
         const request = {
           pairingCode: code,
@@ -231,9 +344,13 @@
         });
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Mac rejected the event');
-        if (act === 1) showToast(key + ' worked');
+        if (act === 1) {
+          showFeedback(successLabels[key] || `${key} worked`, 'success');
+          showToast('Worked');
+        }
       } catch (error) {
-        showToast(error.message || 'Mac connection lost');
+        showFeedback(error.message || 'Mac connection lost', 'error');
+        showToast('Needs attention');
         if (error instanceof TypeError) setConnected(false);
       }
     }
@@ -242,6 +359,10 @@
       let activePointer = null;
       element.addEventListener('pointerdown', event => {
         event.preventDefault();
+        if (!controlsEnabled) {
+          showFeedback(setupMessage, 'error');
+          return;
+        }
         if (activePointer !== null) return;
         activePointer = event.pointerId;
         element.setPointerCapture(event.pointerId);
@@ -277,6 +398,11 @@
       document.querySelectorAll('[data-face]').forEach(item => item.classList.toggle('active', item === button));
       document.querySelectorAll('.face').forEach(face => face.classList.toggle('active', face.id === button.dataset.face));
     }));
+    document.querySelector('#coach-done').addEventListener('click', () => {
+      localStorage.setItem('vibe-watch-onboarding-seen', '1');
+      coach.hidden = true;
+      showFeedback('Tap Agent 1 to try your first control.', 'success');
+    });
 
     function setConnected(connected, label = connected ? 'Mac connected' : 'Offline') {
       status.classList.toggle('connected', connected);
@@ -288,7 +414,14 @@
         const response = await fetch('/api/status?code=' + encodeURIComponent(code), { cache: 'no-store' });
         const data = await response.json();
         setConnected(response.ok && data.connected, response.ok ? data.name : 'Pairing failed');
-      } catch { setConnected(false); }
+        if (response.ok) renderReadiness(data);
+        else showFeedback(data.message || 'Pairing failed. Scan the QR code again.', 'error');
+      } catch {
+        setConnected(false);
+        controlsEnabled = false;
+        controlSurface.classList.add('blocked');
+        showFeedback('Mac connection lost. Keep the bridge open and stay on the same Wi-Fi.', 'error');
+      }
     }
     checkStatus();
     setInterval(checkStatus, 3000);
