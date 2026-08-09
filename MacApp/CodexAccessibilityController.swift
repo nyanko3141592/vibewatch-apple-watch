@@ -98,11 +98,7 @@ final class CodexAccessibilityController {
                 postReturnKey()
             }
         case .microphone:
-            try pressControl(
-                matching: ["push to talk", "microphone", "voice", "マイク", "音声"],
-                in: root,
-                command: "Microphone"
-            )
+            postKeyboardShortcut(virtualKey: 2, flags: [.maskControl, .maskShift])
         }
         state = .ready
     }
@@ -121,7 +117,11 @@ final class CodexAccessibilityController {
         let candidates = elements.compactMap { element -> (AXUIElement, String, String)? in
             let role = stringAttribute(kAXRoleAttribute, of: element) ?? ""
             let label = searchableText(of: element).lowercased()
-            guard !label.isEmpty, normalizedTerms.contains(where: label.contains) else { return nil }
+            guard
+                canPress(element),
+                !label.isEmpty,
+                normalizedTerms.contains(where: label.contains)
+            else { return nil }
             return (element, role, label)
         }
         .sorted { lhs, rhs in
@@ -134,6 +134,8 @@ final class CodexAccessibilityController {
     }
 
     private func selectAgent(_ index: Int, in root: AXUIElement) throws {
+        if openRecentThread(index) { return }
+
         let ignored = ["settings", "search", "new chat", "設定", "検索", "新しいチャット"]
         let taskButtons = flatten(root).filter { element in
             guard stringAttribute(kAXRoleAttribute, of: element) == kAXButtonRole as String,
@@ -149,6 +151,23 @@ final class CodexAccessibilityController {
             detail = "Could not select Codex task \(index + 1). Keep the target tasks visible in the sidebar."
             throw AccessibilityError.controlNotFound("Agent \(index + 1)")
         }
+    }
+
+    private func openRecentThread(_ index: Int) -> Bool {
+        let indexURL = FileManager.default.homeDirectoryForCurrentUser
+            .appending(path: ".codex/session_index.jsonl")
+        guard let data = try? Data(contentsOf: indexURL) else { return false }
+        let threads = CodexThreadIndex.recentThreads(from: data)
+        guard threads.indices.contains(index) else { return false }
+
+        let thread = threads[index]
+        guard let url = URL(string: "codex://threads/\(thread.id)") else { return false }
+        let opened = NSWorkspace.shared.open(url)
+        if opened {
+            state = .ready
+            detail = "Opened recent Codex task \(index + 1): \(thread.threadName)"
+        }
+        return opened
     }
 
     private func containsChatActions(_ element: AXUIElement) -> Bool {
@@ -209,6 +228,12 @@ final class CodexAccessibilityController {
         return false
     }
 
+    private func canPress(_ element: AXUIElement) -> Bool {
+        var names: CFArray?
+        guard AXUIElementCopyActionNames(element, &names) == .success else { return false }
+        return (names as? [String])?.contains(kAXPressAction as String) == true
+    }
+
     private func score(role: String, label: String, terms: [String]) -> Int {
         var value = role == kAXButtonRole as String || role == kAXMenuItemRole as String ? 100 : 0
         if terms.contains(label) { value += 50 }
@@ -220,6 +245,16 @@ final class CodexAccessibilityController {
         let source = CGEventSource(stateID: .hidSystemState)
         CGEvent(keyboardEventSource: source, virtualKey: 36, keyDown: true)?.post(tap: .cghidEventTap)
         CGEvent(keyboardEventSource: source, virtualKey: 36, keyDown: false)?.post(tap: .cghidEventTap)
+    }
+
+    private func postKeyboardShortcut(virtualKey: CGKeyCode, flags: CGEventFlags) {
+        let source = CGEventSource(stateID: .hidSystemState)
+        let keyDown = CGEvent(keyboardEventSource: source, virtualKey: virtualKey, keyDown: true)
+        keyDown?.flags = flags
+        keyDown?.post(tap: .cghidEventTap)
+        let keyUp = CGEvent(keyboardEventSource: source, virtualKey: virtualKey, keyDown: false)
+        keyUp?.flags = flags
+        keyUp?.post(tap: .cghidEventTap)
     }
 
     private static var codexApplication: NSRunningApplication? {

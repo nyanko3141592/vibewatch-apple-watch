@@ -17,15 +17,19 @@
 		29FD51ADE11E6A3FFB98F8A6 /* VibeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8BC7D5284754FA7A727202B /* VibeProtocol.swift */; };
 		2F69B98EA986CF54D0F6D803 /* PhoneControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A53FF0205B59737EC09E2A /* PhoneControlView.swift */; };
 		3833A7AD19963714D2DC505F /* VibeWatchBridgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42606C2E991D088B8363301B /* VibeWatchBridgeApp.swift */; };
+		40B9A3F8CB819D1C1C8C0A1D /* CodexThreadIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 310736A9D55C8A77E9A0C6C2 /* CodexThreadIndex.swift */; };
 		4E2F8CB06C55A0A6B9BA13FA /* BridgeServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A8A17D7A672010F7FE3032 /* BridgeServer.swift */; };
 		500FB43F18F5FDAE89E75A5E /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90CF215F4AB14FBE26E6E04 /* QRCodeView.swift */; };
 		5848696307B3E8EAA7CA0D07 /* CodexAccessibilityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D268A0A87D9BE51876967AF /* CodexAccessibilityController.swift */; };
+		5F1B757CB26048E6C83DCF78 /* CodexThreadIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 310736A9D55C8A77E9A0C6C2 /* CodexThreadIndex.swift */; };
 		62630331E0CF3FCF0E7F452F /* VibeProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA69F9162FA1F5A4676D5199 /* VibeProtocolTests.swift */; };
 		73BC525045C945F541720001 /* MacHostClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA805649F5CA22F142F80054 /* MacHostClient.swift */; };
 		8AA0917FA4B73F937FF8BCC4 /* BridgeDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78ABE907541316107845A376 /* BridgeDashboard.swift */; };
 		8F89BA6BD5F927273AD50E45 /* controller.html in Resources */ = {isa = PBXBuildFile; fileRef = 3EA22145001B5B0205DCC74E /* controller.html */; };
 		94F5BCBB2933FFAD4E779921 /* VibeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8BC7D5284754FA7A727202B /* VibeProtocol.swift */; };
 		9C32C697D741C5BE3754050C /* VibeWatchRelayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22648D50BE16F6C54ACEE69 /* VibeWatchRelayApp.swift */; };
+		9D80DC779B2494997D67AC3F /* CodexThreadIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 310736A9D55C8A77E9A0C6C2 /* CodexThreadIndex.swift */; };
+		A0561D709CB7371EF36D541E /* CodexThreadIndex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 310736A9D55C8A77E9A0C6C2 /* CodexThreadIndex.swift */; };
 		A97E579E13A8C1FBA23FBA72 /* ControlSurfaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE70E9E772EFF3A2878450E5 /* ControlSurfaceView.swift */; };
 		AB8E2E8AD29ACB0F78475B5C /* CodexMicroTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DA42DC6D743798F27F89A34 /* CodexMicroTransport.swift */; };
 		AECD3EDB8E8292370266BB8B /* VibeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8BC7D5284754FA7A727202B /* VibeProtocol.swift */; };
@@ -70,6 +74,7 @@
 		0170CE8BE483618AE4A4C24B /* BrowserControllerPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowserControllerPage.swift; sourceTree = "<group>"; };
 		17B88FACD4C3FA8F23227E84 /* WatchLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchLink.swift; sourceTree = "<group>"; };
 		297E9E2F820D4A3C54288173 /* PhoneRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneRelay.swift; sourceTree = "<group>"; };
+		310736A9D55C8A77E9A0C6C2 /* CodexThreadIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexThreadIndex.swift; sourceTree = "<group>"; };
 		3EA22145001B5B0205DCC74E /* controller.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = controller.html; sourceTree = "<group>"; };
 		42606C2E991D088B8363301B /* VibeWatchBridgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeWatchBridgeApp.swift; sourceTree = "<group>"; };
 		4D268A0A87D9BE51876967AF /* CodexAccessibilityController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexAccessibilityController.swift; sourceTree = "<group>"; };
@@ -155,6 +160,7 @@
 		C1582B05F9D39740F1BC03F6 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				310736A9D55C8A77E9A0C6C2 /* CodexThreadIndex.swift */,
 				A8BC7D5284754FA7A727202B /* VibeProtocol.swift */,
 			);
 			path = Shared;
@@ -333,6 +339,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A0561D709CB7371EF36D541E /* CodexThreadIndex.swift in Sources */,
 				A97E579E13A8C1FBA23FBA72 /* ControlSurfaceView.swift in Sources */,
 				1CFFA873ABE83D6587BAFEAF /* PressableControl.swift in Sources */,
 				94F5BCBB2933FFAD4E779921 /* VibeProtocol.swift in Sources */,
@@ -345,6 +352,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				40B9A3F8CB819D1C1C8C0A1D /* CodexThreadIndex.swift in Sources */,
 				29FD51ADE11E6A3FFB98F8A6 /* VibeProtocol.swift in Sources */,
 				62630331E0CF3FCF0E7F452F /* VibeProtocolTests.swift in Sources */,
 			);
@@ -360,6 +368,7 @@
 				2422CB7C41487DE50D01FDB3 /* BrowserControllerPage.swift in Sources */,
 				5848696307B3E8EAA7CA0D07 /* CodexAccessibilityController.swift in Sources */,
 				AB8E2E8AD29ACB0F78475B5C /* CodexMicroTransport.swift in Sources */,
+				9D80DC779B2494997D67AC3F /* CodexThreadIndex.swift in Sources */,
 				23D83A8315CA9DE8BBD5B319 /* LocalNetworkAddress.swift in Sources */,
 				500FB43F18F5FDAE89E75A5E /* QRCodeView.swift in Sources */,
 				1B075B5B7B0498D13FBDD78A /* VibeProtocol.swift in Sources */,
@@ -371,6 +380,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F1B757CB26048E6C83DCF78 /* CodexThreadIndex.swift in Sources */,
 				73BC525045C945F541720001 /* MacHostClient.swift in Sources */,
 				2F69B98EA986CF54D0F6D803 /* PhoneControlView.swift in Sources */,
 				F78BF0D58DA6BCDF86655403 /* PhoneRelay.swift in Sources */,
@@ -485,7 +495,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = CW97U5J24N;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = MacApp/Info.plist;
@@ -494,7 +504,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.2.2;
+				MARKETING_VERSION = 0.2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nyanko3141592.VibeWatch.Bridge;
 				SDKROOT = macosx;
 			};
@@ -535,7 +545,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = CW97U5J24N;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = MacApp/Info.plist;
@@ -544,7 +554,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.2.2;
+				MARKETING_VERSION = 0.2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nyanko3141592.VibeWatch.Bridge;
 				SDKROOT = macosx;
 			};

@@ -66,4 +66,16 @@ final class VibeProtocolTests: XCTestCase {
             .microphone(active: false)
         )
     }
+
+    func testRecentCodexThreadsAreDeduplicatedAndSorted() {
+        let data = Data("""
+        {"id":"019fe0f0-6c1d-75f0-95a7-233ee2aa1329","thread_name":"Older name","updated_at":"2026-08-08T10:00:00Z"}
+        {"id":"019fe619-8e3d-7840-a63d-0f87a1983425","thread_name":"Newest","updated_at":"2026-08-09T10:00:00Z"}
+        {"id":"019fe0f0-6c1d-75f0-95a7-233ee2aa1329","thread_name":"Updated name","updated_at":"2026-08-08T11:00:00Z"}
+        not-json
+        """.utf8)
+
+        let threads = CodexThreadIndex.recentThreads(from: data)
+        XCTAssertEqual(threads.map(\.threadName), ["Newest", "Updated name"])
+    }
 }
