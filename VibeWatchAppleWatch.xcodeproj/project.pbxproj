@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		06696CE3E3767A79B27B6B1E /* WatchLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17B88FACD4C3FA8F23227E84 /* WatchLink.swift */; };
+		11DC8420178AFDBD3464A014 /* CodexAppServerTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527BF04BB553BFE4667C7AB5 /* CodexAppServerTransport.swift */; };
 		182AE3FE2C0AD84034756014 /* BridgeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43E27BE55B5994F87107AA9 /* BridgeController.swift */; };
 		18841C19BA3A50C69A8218EC /* RelayDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = A08D8442AF55F5BB7DD871E5 /* RelayDashboard.swift */; };
 		1B075B5B7B0498D13FBDD78A /* VibeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8BC7D5284754FA7A727202B /* VibeProtocol.swift */; };
@@ -76,6 +77,7 @@
 		310736A9D55C8A77E9A0C6C2 /* CodexThreadIndex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexThreadIndex.swift; sourceTree = "<group>"; };
 		3EA22145001B5B0205DCC74E /* controller.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = controller.html; sourceTree = "<group>"; };
 		42606C2E991D088B8363301B /* VibeWatchBridgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VibeWatchBridgeApp.swift; sourceTree = "<group>"; };
+		527BF04BB553BFE4667C7AB5 /* CodexAppServerTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexAppServerTransport.swift; sourceTree = "<group>"; };
 		634B035593DA392279CCB5AD /* VibeWatchWatchApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VibeWatchWatchApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6502E6265E2B4DBE5BB7564B /* VibeWatchProtocolTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VibeWatchProtocolTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		78ABE907541316107845A376 /* BridgeDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BridgeDashboard.swift; sourceTree = "<group>"; };
@@ -173,6 +175,7 @@
 				78ABE907541316107845A376 /* BridgeDashboard.swift */,
 				E5A8A17D7A672010F7FE3032 /* BridgeServer.swift */,
 				0170CE8BE483618AE4A4C24B /* BrowserControllerPage.swift */,
+				527BF04BB553BFE4667C7AB5 /* CodexAppServerTransport.swift */,
 				CA9E6D768251F9DC43CF9BA7 /* Info.plist */,
 				83EE61CDB852088EF187944C /* LocalNetworkAddress.swift */,
 				F90CF215F4AB14FBE26E6E04 /* QRCodeView.swift */,
@@ -364,6 +367,7 @@
 				8AA0917FA4B73F937FF8BCC4 /* BridgeDashboard.swift in Sources */,
 				4E2F8CB06C55A0A6B9BA13FA /* BridgeServer.swift in Sources */,
 				2422CB7C41487DE50D01FDB3 /* BrowserControllerPage.swift in Sources */,
+				11DC8420178AFDBD3464A014 /* CodexAppServerTransport.swift in Sources */,
 				9D80DC779B2494997D67AC3F /* CodexThreadIndex.swift in Sources */,
 				23D83A8315CA9DE8BBD5B319 /* LocalNetworkAddress.swift in Sources */,
 				500FB43F18F5FDAE89E75A5E /* QRCodeView.swift in Sources */,
@@ -491,7 +495,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = CW97U5J24N;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = MacApp/Info.plist;
@@ -500,7 +504,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nyanko3141592.VibeWatch.Bridge;
 				SDKROOT = macosx;
 			};
@@ -541,7 +545,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = CW97U5J24N;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = MacApp/Info.plist;
@@ -550,7 +554,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.nyanko3141592.VibeWatch.Bridge;
 				SDKROOT = macosx;
 			};

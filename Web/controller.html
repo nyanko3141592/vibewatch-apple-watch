@@ -171,6 +171,13 @@
       border: 1px solid rgba(255,255,255,.08); border-radius: 10px;
       background: #101014; color: #8e8e9a; text-align: center; font-size: 10px; line-height: 1.45;
     }
+    .composer { margin-top: 12px; display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+    .composer textarea {
+      min-height: 74px; resize: vertical; border: 1px solid rgba(255,255,255,.12); border-radius: 12px;
+      padding: 11px 12px; background: #101014; color: #f7f7fa; font: 14px/1.45 -apple-system, sans-serif;
+      -webkit-user-select: text !important; user-select: text !important; touch-action: manipulation;
+    }
+    .composer button { border: 0; border-radius: 12px; padding: 0 16px; color: white; background: #7042e8; font-weight: 800; }
     .feedback.success { color: #75e8a4; border-color: rgba(85,224,142,.28); }
     .feedback.error { color: #ff9f72; border-color: rgba(255,136,77,.35); }
     .hint { text-align: center; color: #666672; font-size: 10px; line-height: 1.45; margin: 8px auto 0; max-width: 330px; }
@@ -204,7 +211,7 @@
       </div>
       <div class="checks" aria-label="Setup checks">
         <span class="check" data-check="bridge"><i></i>Bridge</span>
-        <span class="check" data-check="hardware"><i></i>BLE device</span>
+        <span class="check" data-check="hardware"><i></i>No hardware</span>
         <span class="check" data-check="codex"><i></i>Codex</span>
       </div>
     </section>
@@ -245,6 +252,11 @@
       </div>
     </section>
 
+    <div class="composer">
+      <textarea id="prompt" maxlength="4000" placeholder="Codexへの指示を入力、またはマイク長押しで音声入力"></textarea>
+      <button id="send-prompt" type="button">SEND</button>
+    </div>
+
     <p class="feedback" id="feedback" role="status" aria-live="polite">Checking whether Codex is ready…</p>
     <p class="hint">Tap Agent and Action controls normally. Press and hold only the microphone button while speaking.</p>
   </main>
@@ -261,6 +273,7 @@
     const readinessCount = document.querySelector('#readiness-count');
     const controlSurface = document.querySelector('#control-surface');
     const feedback = document.querySelector('#feedback');
+    const promptField = document.querySelector('#prompt');
     const coach = document.querySelector('#coach');
     let toastTimer;
     let controlsEnabled = false;
@@ -305,7 +318,11 @@
       if (controlsEnabled) {
         readinessTitle.textContent = 'Ready to control Codex';
         readinessDetail.textContent = `${data.name} · Local connection`;
-        showFeedback(data.lastError || 'Tap Agent 1 to try your first control.', data.lastError ? 'error' : 'success');
+        const liveMessage = data.pendingApproval ? 'Codexが承認待ちです。APPROVEかREJECTを押してください。'
+          : data.codexBusy ? 'Codexが作業中です。追加指示はそのままSENDできます。'
+          : data.lastResponse ? data.lastResponse.slice(-240)
+          : '指示を入力してSENDしてください。';
+        showFeedback(data.lastError || liveMessage, data.lastError ? 'error' : 'success');
         if (!localStorage.getItem('vibe-watch-onboarding-seen')) coach.hidden = false;
       } else {
         readinessTitle.textContent = count === 0 ? 'Connecting to your Mac…' : 'Finish setup on your Mac';
@@ -344,7 +361,8 @@
       try {
         const request = {
           pairingCode: code,
-          event: { id: createUUID(), key, phase: act, createdAt: createdAtForSwift() }
+          event: { id: createUUID(), key, phase: act, createdAt: createdAtForSwift() },
+          prompt: key === 'ACT12' ? promptField.value : null
         };
         const response = await fetch('/api/event', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -353,6 +371,7 @@
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Mac rejected the event');
         if (act === 1) {
+          if (key === 'ACT12') promptField.value = '';
           showFeedback(successLabels[key] || `${key} worked`, 'success');
           showToast('Worked');
         }
@@ -401,15 +420,56 @@
       element.addEventListener('contextmenu', event => event.preventDefault());
     }
 
-    const preventNativeSelection = event => event.preventDefault();
+    const preventNativeSelection = event => {
+      if (event.target.closest?.('textarea,input')) return;
+      event.preventDefault();
+    };
     document.addEventListener('selectstart', preventNativeSelection, { capture: true });
     document.addEventListener('dragstart', preventNativeSelection, { capture: true });
     document.addEventListener('contextmenu', preventNativeSelection, { capture: true });
     document.addEventListener('gesturestart', preventNativeSelection, { capture: true, passive: false });
-    document.addEventListener('selectionchange', () => window.getSelection()?.removeAllRanges());
+    document.addEventListener('selectionchange', () => {
+      if (document.activeElement?.matches?.('textarea,input')) return;
+      window.getSelection()?.removeAllRanges();
+    });
 
     document.querySelectorAll('[data-key]').forEach(element => bindPress(element, [element.dataset.key]));
-    document.querySelectorAll('[data-mic]').forEach(element => bindPress(element, ['ACT10', 'ACT11']));
+    document.querySelector('#send-prompt').addEventListener('click', () => send('ACT12', 1));
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.lang = 'ja-JP';
+      recognition.interimResults = true;
+      recognition.continuous = true;
+      recognition.onresult = event => {
+        let text = '';
+        for (let i = 0; i < event.results.length; i += 1) text += event.results[i][0].transcript;
+        promptField.value = text;
+        showFeedback('音声を入力中… 指を離して確認し、SENDを押してください。', 'success');
+      };
+      recognition.onerror = event => showFeedback(`音声入力: ${event.error}`, 'error');
+    }
+    document.querySelectorAll('[data-mic]').forEach(element => {
+      let recording = false;
+      element.addEventListener('pointerdown', event => {
+        event.preventDefault();
+        if (!controlsEnabled) return showFeedback(setupMessage, 'error');
+        if (!recognition) { promptField.focus(); return showFeedback('このブラウザでは音声認識を使えません。テキスト入力してください。', 'error'); }
+        recording = true; element.classList.add('pressed');
+        try { recognition.start(); } catch {}
+      }, {passive:false});
+      const stop = event => {
+        event.preventDefault();
+        if (!recording) return;
+        recording = false; element.classList.remove('pressed');
+        try { recognition.stop(); } catch {}
+      };
+      element.addEventListener('pointerup', stop, {passive:false});
+      element.addEventListener('pointercancel', stop, {passive:false});
+      element.addEventListener('contextmenu', event => event.preventDefault());
+    });
     document.querySelectorAll('[data-face]').forEach(button => button.addEventListener('click', () => {
       document.querySelectorAll('[data-face]').forEach(item => item.classList.toggle('active', item === button));
       document.querySelectorAll('.face').forEach(face => face.classList.toggle('active', face.id === button.dataset.face));

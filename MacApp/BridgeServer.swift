@@ -3,7 +3,7 @@ import Foundation
 
 final class BridgeServer: @unchecked Sendable {
     var onState: (@Sendable (String) -> Void)?
-    var onEvent: (@Sendable (VibeEvent, @escaping @Sendable (String?) -> Void) -> Void)?
+    var onEvent: (@Sendable (BridgeRequest, @escaping @Sendable (String?) -> Void) -> Void)?
     var onBrowserStatus: (@Sendable (@escaping @Sendable (BrowserStatus) -> Void) -> Void)?
 
     private let pairingCode: String
@@ -91,7 +91,7 @@ final class BridgeServer: @unchecked Sendable {
                 send(.error("Pairing code does not match"), to: connection)
                 continue
             }
-            onEvent?(request.event) { _ in }
+            onEvent?(request) { _ in }
             send(.accepted(request.event.id), to: connection)
         }
         return false
@@ -185,7 +185,7 @@ final class BridgeServer: @unchecked Sendable {
                 sendJSON(BridgeResponse.error("Bridge is not ready"), status: 503, to: connection)
                 return
             }
-            onEvent(request.event) { [weak self, weak connection] errorMessage in
+            onEvent(request) { [weak self, weak connection] errorMessage in
                 guard let self, let connection else { return }
                 self.queue.async {
                     if let errorMessage {
@@ -261,5 +261,11 @@ struct BrowserStatus: Codable, Sendable {
     let nativeHIDActive: Bool
     let codexRunning: Bool
     let ready: Bool
+    let codexBusy: Bool
+    let pendingApproval: Bool
+    let selectedAgent: Int
+    let fastMode: Bool
+    let planMode: Bool
+    let lastResponse: String
     let lastError: String?
 }

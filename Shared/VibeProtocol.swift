@@ -15,6 +15,7 @@ enum VibeControl: String, Codable, CaseIterable, Identifiable, Sendable {
 struct BridgeRequest: Codable, Sendable {
     let pairingCode: String
     let event: VibeEvent
+    var prompt: String?
 }
 
 struct BridgeResponse: Codable, Sendable {

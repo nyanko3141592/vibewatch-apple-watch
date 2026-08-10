@@ -1,116 +1,74 @@
-# Vibe Watch native BLE controller for Codex
+# Vibe Watch controller for Codex
 
-Use the Vibe Watch control surface from **Safari on iPhone**, while a BLE Micro
-Pro presents the real hardware protocol to Codex on Mac. The normal path does
-not use macOS Accessibility, UI scripting, keyboard shortcuts, deep links, or a
-restricted virtual-HID entitlement.
+Control Codex on a Mac from **Safari on iPhone**. Version 0.4 uses Codex's
+official local `app-server` interface by default, so it requires **no BLE Micro
+Pro, iPhone app, Accessibility permission, UI scripting, or API key**.
 
-**[Download Vibe Watch Bridge for Mac](https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatchBridge-0.3.0.dmg)** ·
-**[Download BLE Micro Pro firmware](https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatch-BLE-Micro-Pro.uf2)** ·
+**[Download Vibe Watch Bridge for Mac](https://github.com/nyanko3141592/vibewatch-apple-watch/releases/latest/download/VibeWatchBridge-0.4.0.dmg)** ·
 [Project site](https://nyanko3141592.github.io/vibewatch-apple-watch/)
 
-The UI, device identity, HID report map, and event protocol are based on
+The circular UI and control vocabulary are based on
 [GOROman/vibewatch](https://github.com/GOROman/vibewatch). Attribution is
 preserved in [LICENSE](LICENSE).
 
-## Architecture
+## Default architecture
 
 ```text
 iPhone Safari
     │ local Wi-Fi + six-digit pairing code
     ▼
 Vibe Watch Bridge on Mac
-    │ private BLE GATT relay (63-byte frames)
+    │ Codex app-server JSON-RPC (local stdio)
     ▼
-BLE Micro Pro
-    │ native BLE HID — VID 303A / PID 8360 / report ID 6
-    ▼
-Codex desktop app
+Codex
 ```
 
-Codex therefore receives the same `v.oai.hid` press/release messages as the
-reference device. Codex-to-device RPC is also implemented: `v.oai.thstatus`,
-`v.oai.rgbcfg`, `device.status`, and `sys.version` travel through the HID output
-report, and live agent status is relayed back to the browser.
+The bridge starts `codex app-server`, creates a persistent Codex task, sends or
+steers turns, streams the latest response, and handles command/file approvals.
+Codex desktop login is reused; no OpenAI API key is required.
 
-## Install
+## Install and use
 
-Requirements:
+Requirements: macOS 15+, the Codex/ChatGPT desktop app, and an iPhone and Mac on
+the same local network.
 
-- macOS 15 or later
-- BLE Micro Pro (nRF52840/BL654)
-- iPhone and Mac on the same local network
+1. Install and open `VibeWatchBridge-0.4.0.dmg`.
+2. Scan the QR code displayed by the Mac app.
+3. Enter an instruction in Safari, or hold the microphone button to dictate it.
+4. Choose Agent 1–6 and optional FAST/PLAN modes, then tap SEND.
+5. When Codex requests permission, tap APPROVE or REJECT from the phone.
 
-1. Download `VibeWatch-BLE-Micro-Pro.uf2` from the latest release.
-2. Hold the BLE Micro Pro reset switch while connecting USB. Confirm its drive
-   contains `INFO_UF2.TXT`, then copy the UF2 to that drive.
-3. If an older `Vibe Watch #1` exists in macOS Bluetooth settings, forget it.
-   Pair the newly advertised `Vibe Watch #1`.
-4. Install and open `VibeWatchBridge-0.3.0.dmg`.
-5. Open Codex. The bridge shows the BLE board connection and the first native
-   Codex handshake separately.
-6. Scan the bridge QR code with iPhone Camera and use the Safari controller.
+Agent buttons select a working role: implementation, review, debugging, tests,
+UI/UX, or release/documentation. SEND starts a turn; sending again while Codex
+is working steers the active turn. The page shows busy, completion, response,
+and approval-waiting states.
 
-Tap Agent and Action controls normally. Only the microphone is press-and-hold.
-The page disables selection, callouts, drag, context menus, and native gestures
-on the entire control surface so a long press cannot select text.
+Long-press selection, callouts, drag, and context menus remain disabled on the
+watch control. The instruction field intentionally behaves like a normal text
+field.
 
-## Protocol compatibility
+## Optional exact HID compatibility
 
-| Property | Value |
-| --- | --- |
-| BLE name | `Vibe Watch #1` |
-| Manufacturer/model | `VibeWatch` |
-| VID / PID / version | `303A` / `8360` / `0001` |
-| Vendor usage page | `FF00` |
-| Vendor report | ID `6`, input/output/feature, 63 bytes |
-| RPC frame | byte 0 channel `2`, byte 1 length, bytes 2–62 JSON |
-| Agent keys | `AG00`…`AG05` |
-| Actions | `ACT06`…`ACT12` |
+`Firmware/BLEMicroPro` remains available for testing the original hardware
+protocol: byte-identical 200-byte report map, VID `303A`, PID `8360`, and vendor
+report ID 6 with 63-byte input/output/feature reports. It is not needed for the
+normal software mode.
 
-Example press report payload:
-
-```json
-{"m":"v.oai.hid","p":{"k":"AG00","act":1}}
-```
-
-## Build from source
-
-Mac app:
+## Build
 
 ```sh
 xcodegen generate
 xcodebuild -project VibeWatchAppleWatch.xcodeproj -scheme VibeWatchBridge build
 ```
 
-BLE Micro Pro firmware:
-
-```sh
-cd Firmware/BLEMicroPro
-pio run
-```
-
-`pio run` creates `Firmware/BLEMicroPro/VibeWatch-BLE-Micro-Pro.uf2`. The image
-starts at `0x26000`, matching BLE Micro Pro's S140/UF2 application layout; it
-does not replace the bootloader.
-
-The repository still includes optional native iPhone and Apple Watch clients.
-They use the same event model, but Safari is the default controller.
-
 ## Verification
 
-- BLE firmware compiles for nRF52840 and produces a UF2 beginning at `0x26000`.
-- The firmware report map is byte-identical to the reference implementation.
-- macOS bridge builds with Swift 6 and CoreBluetooth.
-- Protocol framing tests cover exact 63-byte press/release reports.
-- Browser events receive an error unless the physical BLE relay is connected;
-  the UI no longer reports a false success.
+- Mac bridge builds with Swift 6.
+- Software mode reaches `ready` without a Bluetooth device.
+- Browser API selection and FAST mode update immediately.
+- A real browser API instruction completed through app-server and returned
+  `VIBEWATCH SOFTWARE OK`.
+- The touch surface prevents accidental long-press text selection.
+- Optional BLE firmware descriptor/framing tests remain available.
 
-End-to-end radio verification requires a BLE Micro Pro to be physically
-connected/flashed and paired. The build machine used for the current release
-did not have one attached, so the app deliberately reports that hardware step
-as incomplete instead of falling back to Accessibility.
-
-References: [Codex Micro documentation](https://learn.chatgpt.com/docs/features/codex-micro) ·
-[BLE Micro Pro](https://github.com/sekigon-gonnoc/BLE-Micro-Pro) ·
-[Apple CoreBluetooth](https://developer.apple.com/documentation/corebluetooth)
+Reference: [Codex App Server](https://developers.openai.com/codex/app-server/)

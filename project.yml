@@ -87,12 +87,11 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSApplicationCategoryType: public.app-category.developer-tools
-        NSBluetoothAlwaysUsageDescription: Connects to BLE Micro Pro and forwards controls through its native Codex Micro HID service.
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.nyanko3141592.VibeWatch.Bridge
-        MARKETING_VERSION: 0.3.0
-        CURRENT_PROJECT_VERSION: 6
+        MARKETING_VERSION: 0.4.0
+        CURRENT_PROJECT_VERSION: 7
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         DEVELOPMENT_TEAM: CW97U5J24N
         CODE_SIGN_STYLE: Automatic

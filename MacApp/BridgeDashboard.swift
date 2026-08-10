@@ -20,27 +20,20 @@ struct BridgeDashboard: View {
 
                     SetupStepRow(
                         number: 2,
-                        isComplete: controller.isHardwareReady,
-                        title: "BLE Micro Pro",
-                        detail: controller.isHardwareReady
-                            ? "Connected as Vibe Watch #1 with the native 63-byte HID protocol"
-                            : controller.bleMicroPro.detail,
-                        actionTitle: controller.isHardwareReady ? nil : "Scan Again"
+                        isComplete: controller.codex.isReady,
+                        title: "Codex app-server",
+                        detail: controller.codex.detail,
+                        actionTitle: controller.codex.isReady ? nil : "Retry"
                     ) {
-                        controller.bleMicroPro.rescan()
+                        controller.codex.start()
                     }
 
                     SetupStepRow(
                         number: 3,
-                        isComplete: controller.isCodexRunning,
-                        title: "Codex native HID",
-                        detail: controller.isNativeHIDActive
-                            ? "Codex is exchanging native device status frames"
-                            : (controller.isCodexRunning ? "Codex is open; waiting for the first device handshake" : "Open Codex before using the controller"),
-                        actionTitle: controller.isCodexRunning ? nil : "Open Codex"
-                    ) {
-                        controller.openCodex()
-                    }
+                        isComplete: true,
+                        title: "No hardware required",
+                        detail: "Instructions go directly to Codex through its official local interface"
+                    )
                 }
 
                 Section(controller.isReady ? "Connect your iPhone" : "Your iPhone") {
@@ -76,8 +69,8 @@ struct BridgeDashboard: View {
                 }
 
                 Section("Transport") {
-                    Label("Native Bluetooth HID", systemImage: "dot.radiowaves.left.and.right")
-                    Text("Accessibility is not used. Browser events are written to BLE Micro Pro, which sends the same v.oai.hid reports as the reference device.")
+                    Label("Codex app-server", systemImage: "terminal")
+                    Text("Default mode uses Codex's local JSON-RPC interface. Accessibility and BLE hardware are not used. BLE HID remains only as an optional compatibility mode.")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }
@@ -115,7 +108,7 @@ private struct SetupSummary: View {
                         .font(.title3.weight(.semibold))
                     Text(controller.isReady
                          ? "Scan the QR code below. No iPhone app is needed."
-                         : "Flash and pair BLE Micro Pro, then open Codex.")
+                         : "Keep this Mac app open. BLE hardware and Accessibility are not required.")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                 }

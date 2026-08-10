@@ -10,18 +10,19 @@ final class BridgeController {
     private(set) var lastError: String?
 
     let pairingCode: String
+    let codex = CodexAppServerTransport()
     let bleMicroPro = BLEMicroProTransport()
     private var server: BridgeServer?
 
     var isBridgeReady: Bool { serverState == "Ready" }
-    var isHardwareReady: Bool { bleMicroPro.isConnected }
-    var isNativeHIDActive: Bool { bleMicroPro.hostHandshakeReceived }
+    var isHardwareReady: Bool { true }
+    var isNativeHIDActive: Bool { codex.isReady }
     var isCodexRunning: Bool {
         !NSRunningApplication.runningApplications(withBundleIdentifier: "com.openai.codex").isEmpty
     }
-    var isReady: Bool { isBridgeReady && isHardwareReady && isCodexRunning }
+    var isReady: Bool { isBridgeReady && codex.isReady }
     var completedSetupSteps: Int {
-        [isBridgeReady, isHardwareReady, isCodexRunning].filter(\.self).count
+        [isBridgeReady, codex.isReady, true].filter(\.self).count
     }
 
     var browserURL: URL? {
@@ -49,21 +50,19 @@ final class BridgeController {
     func start() {
         guard server == nil else { return }
 
-        bleMicroPro.start { [weak self] agents in
-            self?.server?.broadcast(.agentStatus(agents))
-        }
+        codex.start()
 
         let server = BridgeServer(pairingCode: pairingCode)
         server.onState = { [weak self] state in
             Task { @MainActor in self?.serverState = state }
         }
-        server.onEvent = { [weak self] event, completion in
+        server.onEvent = { [weak self] request, completion in
             Task { @MainActor in
                 guard let self else {
                     completion("Bridge closed")
                     return
                 }
-                self.receive(event, completion: completion)
+                self.receive(request, completion: completion)
             }
         }
         server.onBrowserStatus = { [weak self] completion in
@@ -82,7 +81,7 @@ final class BridgeController {
     }
 
     func refreshSetup() {
-        if !bleMicroPro.isConnected { bleMicroPro.rescan() }
+        if !codex.isReady { codex.start() }
     }
 
     func openCodex() {
@@ -97,14 +96,10 @@ final class BridgeController {
         let message: String
         if !isBridgeReady {
             message = "The Mac bridge is still starting."
-        } else if !isHardwareReady {
-            message = bleMicroPro.detail
-        } else if !isCodexRunning {
-            message = "Open Codex on your Mac."
-        } else if !isNativeHIDActive {
-            message = "BLE HID is connected. Codex has not sent its first native status frame yet."
+        } else if !codex.isReady {
+            message = codex.detail
         } else {
-            message = "Ready — controls use the native Codex Micro BLE HID protocol."
+            message = codex.detail
         }
 
         return BrowserStatus(
@@ -114,8 +109,14 @@ final class BridgeController {
             bridgeReady: isBridgeReady,
             hardwareConnected: isHardwareReady,
             nativeHIDActive: isNativeHIDActive,
-            codexRunning: isCodexRunning,
+            codexRunning: codex.isReady,
             ready: isReady,
+            codexBusy: codex.isBusy,
+            pendingApproval: codex.hasPendingApproval,
+            selectedAgent: codex.selectedAgent,
+            fastMode: codex.fastMode,
+            planMode: codex.planMode,
+            lastResponse: codex.lastResponse,
             lastError: lastError
         )
     }
@@ -129,18 +130,38 @@ final class BridgeController {
         nativeHIDActive: false,
         codexRunning: false,
         ready: false,
+        codexBusy: false,
+        pendingApproval: false,
+        selectedAgent: 1,
+        fastMode: false,
+        planMode: false,
+        lastResponse: "",
         lastError: "Bridge closed"
     )
 
     private func receive(
-        _ event: VibeEvent,
+        _ request: BridgeRequest,
         completion: @escaping @Sendable (String?) -> Void
     ) {
+        let event = request.event
         events.insert(event, at: 0)
         if events.count > 100 { events.removeLast(events.count - 100) }
 
         do {
-            try bleMicroPro.send(event)
+            guard event.phase == .pressed else {
+                completion(nil)
+                return
+            }
+            switch event.codexCommand {
+            case let .selectAgent(index): codex.selectAgent(index + 1)
+            case .toggleFast: codex.toggleFast()
+            case .approve: try codex.resolveApproval(accept: true)
+            case .reject: try codex.resolveApproval(accept: false)
+            case .togglePlan: codex.togglePlan()
+            case .submit: try codex.submit(request.prompt ?? "")
+            case .microphone: break
+            case nil: break
+            }
             lastError = nil
             completion(nil)
         } catch {
