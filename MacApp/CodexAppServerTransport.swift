@@ -4,6 +4,13 @@ import Observation
 @MainActor
 @Observable
 final class CodexAppServerTransport {
+    struct ThreadSummary: Codable, Identifiable, Sendable {
+        let id: String
+        let title: String
+        let cwd: String
+        let isActive: Bool
+    }
+
     private(set) var isReady = false
     private(set) var isBusy = false
     private(set) var hasPendingApproval = false
@@ -12,6 +19,9 @@ final class CodexAppServerTransport {
     private(set) var selectedAgent = 1
     private(set) var fastMode = false
     private(set) var planMode = false
+    private(set) var creatingNewTask = false
+    private(set) var recentThreads: [ThreadSummary] = []
+    private(set) var workspaceURL: URL
 
     private var process: Process?
     private var input: FileHandle?
@@ -21,6 +31,27 @@ final class CodexAppServerTransport {
     private var pendingApprovalID: Any?
     private var requestID = 10
     private var queuedPrompt: String?
+    private var lastThreadsRefreshAt: Date?
+
+    init() {
+        let saved = UserDefaults.standard.string(forKey: "VibeWatchWorkspacePath")
+        workspaceURL = saved.map(URL.init(fileURLWithPath:))
+            ?? FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+            ?? FileManager.default.homeDirectoryForCurrentUser
+    }
+
+    var workspaceName: String { workspaceURL.lastPathComponent }
+    var selectedTask: ThreadSummary? {
+        if creatingNewTask { return nil }
+        let index = selectedAgent - 1
+        return recentThreads.indices.contains(index) ? recentThreads[index] : nil
+    }
+
+    func setWorkspace(_ url: URL) {
+        workspaceURL = url
+        UserDefaults.standard.set(url.path, forKey: "VibeWatchWorkspacePath")
+        detail = "New Codex tasks will use \(url.lastPathComponent)."
+    }
 
     func start() {
         guard process == nil else { return }
@@ -56,7 +87,10 @@ final class CodexAppServerTransport {
         stderr.fileHandleForReading.readabilityHandler = { [weak self] handle in
             let data = handle.availableData
             guard let message = String(data: data, encoding: .utf8), !message.isEmpty else { return }
-            Task { @MainActor in self?.detail = message.trimmingCharacters(in: .whitespacesAndNewlines) }
+            Task { @MainActor in
+                guard let self, !self.isReady else { return }
+                self.detail = message.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
         }
 
         do {
@@ -66,7 +100,7 @@ final class CodexAppServerTransport {
             send([
                 "method": "initialize", "id": 1,
                 "params": [
-                    "clientInfo": ["name": "vibewatch_bridge", "title": "Vibe Watch Bridge", "version": "0.4.0"],
+                    "clientInfo": ["name": "vibewatch_bridge", "title": "Vibe Watch Bridge", "version": "0.5.0"],
                     "capabilities": ["experimentalApi": true],
                 ],
             ])
@@ -77,8 +111,33 @@ final class CodexAppServerTransport {
     }
 
     func selectAgent(_ index: Int) {
+        guard !isBusy else {
+            detail = "Codex is working. Wait for completion before switching tasks."
+            return
+        }
         selectedAgent = min(max(index, 1), 6)
-        detail = "Agent \(selectedAgent) selected. Enter an instruction and tap Send."
+        creatingNewTask = false
+        threadID = nil
+        if let selectedTask {
+            detail = "Opening \(selectedTask.title)…"
+            sendRequest(method: "thread/resume", id: 4, params: [
+                "threadId": selectedTask.id,
+                "approvalPolicy": "on-request",
+            ])
+        } else {
+            detail = "Empty slot selected. Send an instruction to create a task in \(workspaceName)."
+        }
+    }
+
+    func prepareNewTask() {
+        guard !isBusy else {
+            detail = "Codex is working. Wait for completion before creating another task."
+            return
+        }
+        creatingNewTask = true
+        threadID = nil
+        lastResponse = ""
+        detail = "New task ready in \(workspaceName). Enter an instruction and tap Send."
     }
 
     func toggleFast() {
@@ -99,7 +158,8 @@ final class CodexAppServerTransport {
         let instruction = modePrefix + trimmed
         if threadID == nil {
             queuedPrompt = instruction
-            startThread()
+            if selectedTask != nil { selectAgent(selectedAgent) }
+            else { startThread() }
         } else if isBusy, let threadID {
             sendRequest(method: "turn/steer", params: [
                 "threadId": threadID,
@@ -126,11 +186,7 @@ final class CodexAppServerTransport {
     }
 
     private var modePrefix: String {
-        let roles = [
-            "Primary implementation agent", "Code reviewer", "Debugging specialist",
-            "Test engineer", "UI/UX specialist", "Release and documentation agent",
-        ]
-        var parts = ["Act as \(roles[selectedAgent - 1])."]
+        var parts: [String] = []
         if fastMode { parts.append("Prioritize speed and make reasonable assumptions.") }
         if planMode { parts.append("State a concise plan before implementation.") }
         return parts.joined(separator: " ") + "\n\n"
@@ -138,10 +194,21 @@ final class CodexAppServerTransport {
 
     private func startThread() {
         detail = "Creating a Codex task…"
-        sendRequest(method: "thread/start", id: 2, params: [
-            "cwd": FileManager.default.homeDirectoryForCurrentUser.path,
+        sendRequest(method: "thread/start", id: 3, params: [
+            "cwd": workspaceURL.path,
             "approvalPolicy": "on-request",
             "sandbox": "workspace-write",
+        ])
+    }
+
+    func refreshThreads(force: Bool = false) {
+        guard isReady else { return }
+        if !force, let lastThreadsRefreshAt, Date().timeIntervalSince(lastThreadsRefreshAt) < 10 { return }
+        lastThreadsRefreshAt = .now
+        sendRequest(method: "thread/list", id: 2, params: [
+            "limit": 6,
+            "sortKey": "recency_at",
+            "sourceKinds": ["cli", "vscode", "appServer"],
         ])
     }
 
@@ -188,14 +255,34 @@ final class CodexAppServerTransport {
         if (object["id"] as? NSNumber)?.intValue == 1, object["result"] != nil {
             send(["method": "initialized", "params": [:]])
             isReady = true
-            detail = "Software connection ready — no BLE device required."
+            detail = "Loading recent Codex tasks…"
+            refreshThreads(force: true)
             return
         }
         if (object["id"] as? NSNumber)?.intValue == 2,
            let result = object["result"] as? [String: Any],
+           let rows = result["data"] as? [[String: Any]] {
+            recentThreads = rows.compactMap(Self.threadSummary)
+            if !creatingNewTask, let threadID,
+               let index = recentThreads.firstIndex(where: { $0.id == threadID }) {
+                selectedAgent = index + 1
+            }
+            detail = recentThreads.isEmpty
+                ? "Ready. Send an instruction to create a Codex task in \(workspaceName)."
+                : "Ready — \(recentThreads.count) recent Codex tasks loaded."
+            return
+        }
+        if let responseID = (object["id"] as? NSNumber)?.intValue,
+           [3, 4].contains(responseID),
+           let result = object["result"] as? [String: Any],
            let thread = result["thread"] as? [String: Any],
            let id = thread["id"] as? String {
             threadID = id
+            if responseID == 3 {
+                creatingNewTask = false
+                selectedAgent = 1
+                refreshThreads(force: true)
+            }
             if let prompt = queuedPrompt {
                 queuedPrompt = nil
                 startTurn(prompt)
@@ -222,6 +309,7 @@ final class CodexAppServerTransport {
             isBusy = false
             turnID = nil
             detail = "Codex completed the instruction."
+            refreshThreads(force: true)
         case "item/commandExecution/requestApproval", "item/fileChange/requestApproval", "permissions/requestApproval":
             pendingApprovalID = object["id"]
             hasPendingApproval = true
@@ -232,6 +320,20 @@ final class CodexAppServerTransport {
         default:
             break
         }
+    }
+
+    private static func threadSummary(_ object: [String: Any]) -> ThreadSummary? {
+        guard let id = object["id"] as? String else { return nil }
+        let cwd = object["cwd"] as? String ?? ""
+        let name = (object["name"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let preview = (object["preview"] as? String)?
+            .components(separatedBy: .newlines).first?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let fallback = URL(fileURLWithPath: cwd).lastPathComponent
+        let rawTitle = [name, preview, fallback].compactMap { $0 }.first(where: { !$0.isEmpty }) ?? "Codex task"
+        let title = rawTitle.count > 42 ? String(rawTitle.prefix(39)) + "…" : rawTitle
+        let status = object["status"] as? [String: Any]
+        return ThreadSummary(id: id, title: title, cwd: cwd, isActive: status?["type"] as? String == "active")
     }
 
     private static var codexExecutable: URL? {

@@ -31,9 +31,12 @@ struct BridgeDashboard: View {
                     SetupStepRow(
                         number: 3,
                         isComplete: true,
-                        title: "No hardware required",
-                        detail: "Instructions go directly to Codex through its official local interface"
-                    )
+                        title: "New-task folder",
+                        detail: controller.codex.workspaceURL.path,
+                        actionTitle: "Choose"
+                    ) {
+                        controller.chooseWorkspace()
+                    }
                 }
 
                 Section(controller.isReady ? "Connect your iPhone" : "Your iPhone") {
@@ -64,6 +67,22 @@ struct BridgeDashboard: View {
                                     .font(.caption.weight(.semibold))
                                     .foregroundStyle(event.phase == .pressed ? .green : .secondary)
                             }
+                        }
+                    }
+                }
+
+                Section("Agent slots") {
+                    ForEach(0..<6, id: \.self) { index in
+                        let task = controller.codex.recentThreads.indices.contains(index)
+                            ? controller.codex.recentThreads[index] : nil
+                        HStack {
+                            Text("\(index + 1)").font(.caption.monospacedDigit()).frame(width: 18)
+                            VStack(alignment: .leading) {
+                                Text(task?.title ?? "Empty slot")
+                                if let cwd = task?.cwd { Text(cwd).font(.caption2).foregroundStyle(.secondary).lineLimit(1) }
+                            }
+                            Spacer()
+                            if task?.isActive == true { Circle().fill(.green).frame(width: 7, height: 7) }
                         }
                     }
                 }

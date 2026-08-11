@@ -82,6 +82,19 @@ final class BridgeController {
 
     func refreshSetup() {
         if !codex.isReady { codex.start() }
+        else if !codex.isBusy { codex.refreshThreads() }
+    }
+
+    func chooseWorkspace() {
+        let panel = NSOpenPanel()
+        panel.title = "Choose a folder for new Codex tasks"
+        panel.prompt = "Use Folder"
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.directoryURL = codex.workspaceURL
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        codex.setWorkspace(url)
     }
 
     func openCodex() {
@@ -116,7 +129,10 @@ final class BridgeController {
             selectedAgent: codex.selectedAgent,
             fastMode: codex.fastMode,
             planMode: codex.planMode,
+            newTaskMode: codex.creatingNewTask,
             lastResponse: codex.lastResponse,
+            tasks: codex.recentThreads.map { BrowserTask(title: $0.title, cwd: $0.cwd, active: $0.isActive) },
+            workspace: codex.workspaceURL.path,
             lastError: lastError
         )
     }
@@ -135,7 +151,10 @@ final class BridgeController {
         selectedAgent: 1,
         fastMode: false,
         planMode: false,
+        newTaskMode: false,
         lastResponse: "",
+        tasks: [],
+        workspace: "",
         lastError: "Bridge closed"
     )
 
@@ -149,6 +168,12 @@ final class BridgeController {
 
         do {
             guard event.phase == .pressed else {
+                completion(nil)
+                return
+            }
+            if event.key == "NEW00" {
+                codex.prepareNewTask()
+                lastError = nil
                 completion(nil)
                 return
             }

@@ -178,6 +178,19 @@
       -webkit-user-select: text !important; user-select: text !important; touch-action: manipulation;
     }
     .composer button { border: 0; border-radius: 12px; padding: 0 16px; color: white; background: #7042e8; font-weight: 800; }
+    .task-panel { margin-top: 12px; padding: 11px; border: 1px solid rgba(255,255,255,.09); border-radius: 12px; background: #101014; }
+    .task-panel header { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 8px; }
+    .task-panel header div { min-width: 0; }
+    .task-panel strong { font-size: 11px; }
+    .task-panel small { display: block; margin-top: 2px; overflow: hidden; color: #777783; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+    .task-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .task-chip { min-width: 0; border: 1px solid rgba(255,255,255,.08); border-radius: 9px; padding: 8px; background: #18181e; color: #b6b4be; text-align: left; }
+    .task-chip b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+    .task-chip span { display: block; overflow: hidden; margin-top: 2px; color: #73717b; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+    .task-chip.selected { border-color: #8f63ff; color: white; background: #231b38; }
+    .task-chip.active span { color: #55e08e; }
+    .new-task { flex: 0 0 auto; border: 1px solid #7954d8; border-radius: 8px; padding: 7px 9px; background: #2b1d4b; color: white; font-size: 9px; font-weight: 800; }
+    .new-task.selected { background: #8153ee; }
     .feedback.success { color: #75e8a4; border-color: rgba(85,224,142,.28); }
     .feedback.error { color: #ff9f72; border-color: rgba(255,136,77,.35); }
     .hint { text-align: center; color: #666672; font-size: 10px; line-height: 1.45; margin: 8px auto 0; max-width: 330px; }
@@ -252,6 +265,11 @@
       </div>
     </section>
 
+    <section class="task-panel" aria-label="Recent Codex tasks">
+      <header><div><strong>RECENT CODEX TASKS</strong><small id="workspace-label">Loading…</small></div><button class="new-task" id="new-task" type="button">＋ NEW TASK</button></header>
+      <div class="task-grid" id="task-grid"></div>
+    </section>
+
     <div class="composer">
       <textarea id="prompt" maxlength="4000" placeholder="Codexへの指示を入力、またはマイク長押しで音声入力"></textarea>
       <button id="send-prompt" type="button">SEND</button>
@@ -274,6 +292,9 @@
     const controlSurface = document.querySelector('#control-surface');
     const feedback = document.querySelector('#feedback');
     const promptField = document.querySelector('#prompt');
+    const taskGrid = document.querySelector('#task-grid');
+    const workspaceLabel = document.querySelector('#workspace-label');
+    const newTaskButton = document.querySelector('#new-task');
     const coach = document.querySelector('#coach');
     let toastTimer;
     let controlsEnabled = false;
@@ -314,11 +335,15 @@
       setCheck('codex', data.codexRunning);
       controlSurface.classList.toggle('blocked', !controlsEnabled);
       controlSurface.setAttribute('aria-disabled', String(!controlsEnabled));
+      workspaceLabel.textContent = `New tasks: ${data.workspace || 'Mac default folder'}`;
+      renderTasks(data.tasks || [], data.newTaskMode ? 0 : (data.selectedAgent || 1));
+      newTaskButton.classList.toggle('selected', Boolean(data.newTaskMode));
 
       if (controlsEnabled) {
         readinessTitle.textContent = 'Ready to control Codex';
         readinessDetail.textContent = `${data.name} · Local connection`;
-        const liveMessage = data.pendingApproval ? 'Codexが承認待ちです。APPROVEかREJECTを押してください。'
+        const liveMessage = data.newTaskMode ? `新規タスクを作成します。指示を入力してSENDしてください。`
+          : data.pendingApproval ? 'Codexが承認待ちです。APPROVEかREJECTを押してください。'
           : data.codexBusy ? 'Codexが作業中です。追加指示はそのままSENDできます。'
           : data.lastResponse ? data.lastResponse.slice(-240)
           : '指示を入力してSENDしてください。';
@@ -330,6 +355,24 @@
         coach.hidden = true;
         showFeedback(setupMessage, 'error');
       }
+    }
+
+    function renderTasks(tasks, selectedAgent) {
+      taskGrid.replaceChildren();
+      for (let index = 0; index < 6; index += 1) {
+        const task = tasks[index];
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'task-chip' + (selectedAgent === index + 1 ? ' selected' : '') + (task?.active ? ' active' : '');
+        const title = document.createElement('b');
+        title.textContent = `${index + 1} · ${task?.title || 'Empty slot'}`;
+        const state = document.createElement('span');
+        state.textContent = task?.active ? '● ACTIVE' : (task ? task.cwd : 'Creates a new task');
+        button.append(title, state);
+        button.addEventListener('click', () => send(`AG${String(index).padStart(2, '0')}`, 1));
+        taskGrid.append(button);
+      }
+      document.querySelectorAll('[data-key^="AG"]').forEach((item, index) => item.classList.toggle('selected', selectedAgent === index + 1));
     }
 
     function createdAtForSwift() {
@@ -372,7 +415,9 @@
         if (!response.ok) throw new Error(result.message || 'Mac rejected the event');
         if (act === 1) {
           if (key === 'ACT12') promptField.value = '';
-          showFeedback(successLabels[key] || `${key} worked`, 'success');
+          const agentIndex = key.startsWith('AG') ? Number(key.slice(2)) : -1;
+          const taskTitle = agentIndex >= 0 ? taskGrid.children[agentIndex]?.querySelector('b')?.textContent : null;
+          showFeedback(taskTitle ? `${taskTitle} selected` : (successLabels[key] || `${key} worked`), 'success');
           showToast('Worked');
         }
       } catch (error) {
@@ -435,6 +480,7 @@
 
     document.querySelectorAll('[data-key]').forEach(element => bindPress(element, [element.dataset.key]));
     document.querySelector('#send-prompt').addEventListener('click', () => send('ACT12', 1));
+    newTaskButton.addEventListener('click', () => send('NEW00', 1));
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition = null;

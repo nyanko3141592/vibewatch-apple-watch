@@ -266,6 +266,15 @@ struct BrowserStatus: Codable, Sendable {
     let selectedAgent: Int
     let fastMode: Bool
     let planMode: Bool
+    let newTaskMode: Bool
     let lastResponse: String
+    let tasks: [BrowserTask]
+    let workspace: String
     let lastError: String?
+}
+
+struct BrowserTask: Codable, Sendable {
+    let title: String
+    let cwd: String
+    let active: Bool
 }
